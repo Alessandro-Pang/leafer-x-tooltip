@@ -1,50 +1,133 @@
-# LeaferX
+<!--
+ * @Author: zi.yang
+ * @Date: 2024-02-01 14:42:21
+ * @LastEditors: zi.yang
+ * @LastEditTime: 2024-02-27 00:45:54
+ * @Description: 
+ * @FilePath: /leafer-x-tooltip/README.md
+-->
+# leafer-x-tooltip
 
-LeaferX 是 Leafer 的第三方插件与上层应用中心，收录可用于生产环境的优秀插件和应用。
+Tooltip 插件主要用于 Leafer 元素/节点上 展示一些自定义信息。
 
-本仓库代码可作为 [插件开发模版](./template.md) 使用。
+使用 Tooltip 插件后，当鼠标悬浮在元素上时，会显示一个弹框展示节点的详细信息。
 
-## 命名规范
+> 注意：该插件强依赖 v1.0.0.rc.1 以上版本
+> v1.0.0.rc.1 以下版本，请使用 [leafer-tooltip-plugin](https://arc.net/l/quote/fcppgncg) 插件
 
-第三方插件命名规范: leafer-x-插件名, 全局变量名为 LeaferX.插件名
-
-第三方应用命名规范: leafer-应用名 或 自定义名称
+## 参与开发
 
 ```sh
-leafer-x-selector  # 读作 leafer 乘以 selector （插件）
-leafer-vue #  基于 leafer 的 vue 组件库 （上层应用）
+npm run start # 开始运行项目
+
+npm run build # 打包插件代码，同时会创建types
+
+npm run test # 自动化测试
 ```
 
-## 收录要求
+# 快速上手
 
-插件和应用需要满足生产环境可用，并提供在线体验 demo、更新日志、完整的教程/文章（需发表到微信公众号 / 掘金 / 知乎平台），让用户可以很快上手使用。
+## 安装
 
-## 申请收录示例
+```shell
+npm i leafer-x-plugin --save
+```
 
-通过提交 Issues 申请
+## 使用方法
 
-### 标题
+使用插件时，传入 `getContent` 参数，并返回需要展示的内容即可
 
-【插件】leafer-x-selector 选择工具
+```js
+import { plugin } from 'leafer-tooltip-plugin';
 
-【应用】leafer-vue 基于 leafer 的 vue 组件
+usePlugin(plugin, {
+  getContent(node) {
+    const dom = `<ul style="list-style: none; margin: 0; padding: 0">
+      <li>节点类型：${node.tag}</li>
+      <li>宽度：${node.width}</li>
+      <li>高度：${node.height}</li>
+    </ul>
+    `;
+    return dom;
+  },
+});
+```
 
-### 内容
+### 效果演示
 
-**leafer-x-selector** 选择工具
+![效果演示](./readme/image-1.gif)
 
-插件简介(150 字以内) - [在线体验](./README.md)
+## 允许限制指定的元素类型
 
-[Github](./README.md) - [更新日志](./README.md) / [微信公众号](./README.md) / [掘金](./README.md) / [知乎](./README.md)
+传入 `includeTypes` 参数，限制允许显示提示框的类型
 
-### Tip
+```js
+import { plugin } from 'leafer-tooltip-plugin';
 
-将插件教程或文章发布到微信公众号 / 掘金 / 知乎， 我们的官方账号会在这三个平台上同步转载你的文章，将获得长期的流量曝光。
+usePlugin(plugin, {
+  includeTypes: ['Ellipse'],
+  getContent(node) {
+    const dom = `<ul style="list-style: none; margin: 0; padding: 0">
+      <li>节点类型：${node.tag}</li>
+      <li>宽度：${node.width}</li>
+      <li>高度：${node.height}</li>
+    </ul>
+    `;
+    return dom;
+  },
+});
+```
 
-## 可持续性
+### 效果演示
 
-我们希望你能够持续的优化更新插件，为用户提供良好的体验，如果你的插件解决了用户的问题，建议可以通过 [爱发电](https://afdian.net/) / Github 等平台开启赞助通道，收取一定的赞助来为用户提供高级功能和教程，我们后期也会考虑搭建一个开发者商店来简化这个流程。
+![效果演示](./readme/image-2.gif)
 
-## 收录列表
+## 允许自定义容器类样式
 
-期待你的提交！
+默认情况下，插件会对所有 leafer 实例生效。  
+有时我们只需要指定的实例生效，这时我们可以自定义注册类型。
+
+声明注册类型后，需要将 leafer 实例类型指定为该类型
+
+```js
+import { plugin } from 'leafer-tooltip-plugin';
+
+usePlugin(plugin, {
+  // 指定注册类型
+  className: 'my-tooltip-plugin',
+  getContent(node) {
+    const dom = `<ul style="list-style: none; margin: 0; padding: 0">
+      <li>节点类型：${node.tag}</li>
+      <li>宽度：${node.width}</li>
+      <li>高度：${node.height}</li>
+    </ul>
+    `;
+    return dom;
+  },
+});
+```
+
+css 中添加自定义的类样式
+
+```css
+.my-custom-tooltip{
+  border: 1px solid rgba(0, 157, 255, .62);
+  padding: 6px;
+  background-color: rgb(131, 207, 255);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+}
+```
+
+### 效果演示
+
+![image](./readme/image-3.png)
+
+# 属性列表
+
+| 属性         | 类型 | 说明                     | 默认值｜ |
+| ------------ | ---- | ------------------------ | -------- |
+| className   | `字符串` | 自定义容器类样式               | -        |
+| includeTypes | `数组` | 允许展示提示框的类型列表 | 所有类型 |
+| getContent   | `函数` | 显示的内容               | -        |
