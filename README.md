@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2024-02-27 00:45:54
+ * @LastEditTime: 2024-02-27 00:55:31
  * @Description: 
  * @FilePath: /leafer-x-tooltip/README.md
 -->
@@ -12,7 +12,7 @@ Tooltip 插件主要用于 Leafer 元素/节点上 展示一些自定义信息�
 
 使用 Tooltip 插件后，当鼠标悬浮在元素上时，会显示一个弹框展示节点的详细信息。
 
-> 注意：该插件强依赖 v1.0.0.rc.1 以上版本
+> 注意：该插件强依赖 v1.0.0.rc.1 以上版本  
 > v1.0.0.rc.1 以下版本，请使用 [leafer-tooltip-plugin](https://arc.net/l/quote/fcppgncg) 插件
 
 ## 参与开发
@@ -38,7 +38,7 @@ npm i leafer-x-plugin --save
 使用插件时，传入 `getContent` 参数，并返回需要展示的内容即可
 
 ```js
-import { plugin } from 'leafer-tooltip-plugin';
+import { plugin } from 'leafer-x-tooltip';
 
 usePlugin(plugin, {
   getContent(node) {
@@ -62,7 +62,7 @@ usePlugin(plugin, {
 传入 `includeTypes` 参数，限制允许显示提示框的类型
 
 ```js
-import { plugin } from 'leafer-tooltip-plugin';
+import { plugin } from 'leafer-x-tooltip';
 
 usePlugin(plugin, {
   includeTypes: ['Ellipse'],
@@ -90,7 +90,7 @@ usePlugin(plugin, {
 声明注册类型后，需要将 leafer 实例类型指定为该类型
 
 ```js
-import { plugin } from 'leafer-tooltip-plugin';
+import { plugin } from 'leafer-x-tooltip';
 
 usePlugin(plugin, {
   // 指定注册类型
@@ -126,8 +126,8 @@ css 中添加自定义的类样式
 
 # 属性列表
 
-| 属性         | 类型 | 说明                     | 默认值｜ |
-| ------------ | ---- | ------------------------ | -------- |
-| className   | `字符串` | 自定义容器类样式               | -        |
-| includeTypes | `数组` | 允许展示提示框的类型列表 | 所有类型 |
-| getContent   | `函数` | 显示的内容               | -        |
+| 属性           | 类型    | 说明           | 默认值｜ |
+|--------------|-------|--------------|------|
+| className    | `字符串` | 自定义容器类样式     | -    |
+| includeTypes | `数组`  | 允许展示提示框的类型列表 | 所有类型 |
+| getContent   | `函数`  | 显示的内容        | -    |
