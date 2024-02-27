@@ -8,7 +8,8 @@
  */
 import { Ellipse, Leafer, Rect } from 'leafer-ui';
 
-import { TooltipPlugin } from './src'; // 引入插件代码
+import { TooltipPlugin } from './src';
+import { createCssClass } from './src/utils' // 引入插件代码
 
 const leafer = new Leafer({ view: window })
 
@@ -35,8 +36,12 @@ const ellipse = new Ellipse({
 
 leafer.add(ellipse)
 
-new TooltipPlugin(leafer, {
-  includeTypes: ['Ellipse'],
+const tooltip = new TooltipPlugin(leafer, {
+  // includeTypes: ['Ellipse'],
+  shouldBegin: (event) => {
+    console.log(event.target instanceof Ellipse)
+    return event.target instanceof Ellipse
+  },
   getContent: (node) => {
     return `<ul style="list-style: none; margin: 0; padding: 0">
         <li>节点类型：${node.tag}</li>
@@ -46,3 +51,19 @@ new TooltipPlugin(leafer, {
       `
   },
 })
+
+setTimeout(()=>{
+  const styleElement = createCssClass('.test--tooltip', {
+    backgroundColor: 'rgba(0, 0, 0, .8)',
+  })
+
+  createCssClass('.test--tooltip2', {
+    color: 'blue',
+  })
+
+  styleElement.sheet.insertRule('.test--tooltip2 { color: red; }', 0)
+
+  tooltip.addClass('test--tooltip')
+  tooltip.addClass('test--tooltip2')
+  tooltip.removeClass('test--tooltip')
+}, 1000)

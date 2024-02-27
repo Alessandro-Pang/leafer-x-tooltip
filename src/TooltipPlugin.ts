@@ -2,68 +2,163 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2024-02-27 00:20:54
+ * @LastEditTime: 2024-02-27 11:35:30
  * @Description: Tooltip 提示插件
  * @FilePath: /leafer-x-tooltip/src/TooltipPlugin.ts
  */
-import { Leafer, LeaferEvent, PointerEvent } from '@leafer-ui/core';
-import type { ILeaf } from '@leafer-ui/interface';
+import { Leafer, LeaferEvent, PointerEvent } from '@leafer-ui/core'
+import type { IEventListenerId, ILeaf } from '@leafer-ui/interface'
 
-import type { UserConfig } from './types';
+import type { UserConfig } from './types'
 import {
   addStyle,
   allowNodeType,
   assert,
-  ATTRS_NAME,
-  getTooltip,
-} from './utils';
+  ATTRS_NAME, createCssClass,
+  getTooltip, PLUGIN_NAME, randomStr
+} from './utils'
 
 export class TooltipPlugin {
-  private app: Leafer
-  private domId: string
-  private config: UserConfig
+  /**
+   * @param { Leafer } app - leafer 实例
+   * @private
+   */
+  private readonly app: Leafer
+  /**
+   * @param { string } domId - tooltip 容器 id
+   * @private
+   */
+  private readonly domId: string
+  /**
+   * @param { UserConfig } config - 用户配置
+   * @private
+   */
+  private readonly config: UserConfig
+  /**
+   * @param { ILeaf } mouseoverNode - 鼠标移动到的节点
+   * @private
+   */
   private mouseoverNode: ILeaf
+  /**
+   * @param { Array<string> } bindEventIds - 绑定的事件 id
+   * @private
+   */
+  private readonly bindEventIds: Array<IEventListenerId>
+
+  private _createTooltip: (event: MouseEvent) => void
 
   constructor(app: Leafer, config: UserConfig) {
     this.app = app
     this.config = config
-    this.init()
+    this.domId = `ltp--${randomStr(8)}`
+    this.bindEventIds = []
+    this.initEvent()
+    this.initCreateCssClass()
+    this.initTooltip()
   }
 
-  private init() {
-    const randomStr = Math.random().toString(32).slice(2, 10)
-    this.domId = `leafer-tooltip-plugin--${randomStr}`
-
+  /**
+   * 初始化事件
+   * @private
+   */
+  private initEvent() {
     // leafer 鼠标移动事件，用于捕获节点
-    this.app.on_(PointerEvent.MOVE, this.leaferPointMove, this)
-
+    const pointEventId = this.app.on_(PointerEvent.MOVE, this.leaferPointMove, this)
     // 挂载画布事件
-    this.app.on(LeaferEvent.VIEW_READY, () => {
-      if (!(this.app.view instanceof HTMLElement)) return
-      assert(!this.app.view?.addEventListener, 'leafer.view 加载失败！')
-      this.app.view.addEventListener('mousemove', (event: MouseEvent) =>
-        this.createTooltip(event)
-      )
-    })
+    const vieReadId = this.app.on_(LeaferEvent.VIEW_READY, this.viewReadyEvent, this)
+    // 保存事件 id
+    this.bindEventIds.push(pointEventId, vieReadId)
   }
 
+  /**
+   * leafer 鼠标移动事件
+   * @param event
+   * @private
+   */
   private leaferPointMove(event: PointerEvent) {
     const node = event.target
-    if (node.isLeafer || !allowNodeType(this.config, node.tag)) {
-      this.mouseoverNode = null
-      const tooltipDOM = getTooltip(this.domId)
-      if (tooltipDOM) {
-        tooltipDOM.style.display = 'none'
-      }
+    // 提前判断，避免后面额外计算
+    if (!node || node.isLeafer) {
+      this.hideTooltip()
+      return
+    }
+    // 判断是否允许显示的节点类型
+    const isAllowType = allowNodeType(this.config, node.tag)
+    // 判断是否允许显示
+    const isShouldBegin = this.config.shouldBegin ? this.config.shouldBegin(event) : true
+    // 不允许显示
+    if (!isAllowType || !isShouldBegin) {
+      this.hideTooltip()
       return
     }
     this.mouseoverNode = node
   }
 
   /**
+   * leafer view 加载完成事件
+   * @private
+   */
+  private viewReadyEvent() {
+    if (!(this.app.view instanceof HTMLElement)) return
+    assert(!this.app.view?.addEventListener, 'leafer.view 加载失败！')
+    this._createTooltip = this.createTooltip.bind(this)
+    this.app.view.addEventListener('mousemove', this._createTooltip)
+  }
+
+  /**
+   * 创建样式
+   * @private
+   */
+  private initCreateCssClass() {
+    createCssClass(`.${PLUGIN_NAME}`, {
+      padding: '8px 10px',
+      backgroundColor: '#fff',
+      borderRadius: '2px',
+      boxShadow: '0 0 4px #e2e2e2',
+      transition: 'opacity 0.3s'
+    })
+  }
+
+  /**
+   * 初始化 tooltip 容器
+   * @private
+   */
+  private initTooltip(): HTMLElement {
+    let container: HTMLElement | null = getTooltip(this.domId)
+    const isExists = container !== null
+    if (!isExists) {
+      container = document.createElement('div')
+    }
+    container.setAttribute(ATTRS_NAME, this.domId)
+    // 允许用户自定义样式
+    if (this.config.className) {
+      container.className = this.config.className
+    } else if (!isExists) {
+      container.className = PLUGIN_NAME
+    }
+    if (!isExists) {
+      document.body.appendChild(container)
+    }
+    return container
+  }
+
+  /**
+   * 隐藏 tooltip
+   * @private
+   */
+  private hideTooltip() {
+    this.mouseoverNode = null
+    const tooltipDOM = getTooltip(this.domId)
+    if (tooltipDOM) {
+      tooltipDOM.style.opacity = '0'
+    }
+  }
+
+  /**
    * 创建提示元素
    * @param { MouseEvent } event DOM 事件
    * @returns
+   * @private
    */
   private createTooltip(event: MouseEvent) {
     if (!this.mouseoverNode) return
@@ -77,41 +172,68 @@ export class TooltipPlugin {
     assert(!content, `getContent 返回值不能为空`)
 
     let container: HTMLElement | null = getTooltip(this.domId)
-    const isExists = container !== null
-    if (!isExists) {
-      container = document.createElement('div')
+    // 容错机制，正常情况下不会出现
+    if (!container) {
+      container = this.initTooltip()
     }
-    if (container === null) return
-
-    container.setAttribute(ATTRS_NAME, this.domId)
     container.innerHTML = content
-    // 允许用户自定义样式
-    if (this.config.className) {
-      container.className = this.config.className
-    } else {
-      addStyle(container, {
-        padding: '8px 10px',
-        backgroundColor: '#fff',
-        borderRadius: '2px',
-        boxShadow: '0 0 4px #e2e2e2',
-      })
-    }
     addStyle(container, {
       display: 'block',
       position: 'absolute',
+      opacity: '1',
       left: event.pageX + 4 + 'px',
-      top: event.pageY + 4 + 'px',
+      top: event.pageY + 4 + 'px'
     })
+  }
 
-    if (!isExists) {
-      document.body.appendChild(container)
+  /**
+   * 获取 tooltip 容器 id
+   */
+  public getDomId() {
+    return this.domId
+  }
+
+  /**
+   * 添加自定义样式
+   * @param className
+   */
+  public addClass(className: string | string[]) {
+    const container = getTooltip(this.domId)
+    if (container) {
+      if (Array.isArray(className)) {
+        className.forEach((item) => container.classList.add(item))
+      } else {
+        container.classList.add(className)
+      }
+    }
+  }
+
+  /**
+   * 移除自定义样式
+   * @param className
+   */
+  public removeClass(className: string | string[]) {
+    const container = getTooltip(this.domId)
+    if (container) {
+      if (Array.isArray(className)) {
+        className.forEach((item) => container.classList.remove(item))
+      } else {
+        container.classList.remove(className)
+      }
     }
   }
 
   /**
    * 销毁 tooltip
    */
-  public destroy(): void {
+  public destroy() {
+    // 移除事件
+    this.app.off_(this.bindEventIds)
+    this.bindEventIds.length = 0
+    if (this.app.view instanceof HTMLElement) {
+      this.app.view.removeEventListener('mousemove', this._createTooltip)
+    }
+    // 移除 tooltip
     const tooltip = getTooltip(this.domId)
     if (tooltip) {
       document.body.removeChild(tooltip)

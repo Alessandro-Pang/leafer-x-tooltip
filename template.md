@@ -17,7 +17,7 @@ tsconfig.json # typescript 配置文件
 rollup.config.js # 需修改导出的全局变量名，rollup 打包脚本配置文件
 
 .gitignore # 提交git时忽略哪些文件和目录
-.eslintrc.js # 代码语法检查配置
+.eslintrc.cjs # 代码语法检查配置
 .prettierrc # 代码格式化配置
 
 __tests__ # 单元测试目录
