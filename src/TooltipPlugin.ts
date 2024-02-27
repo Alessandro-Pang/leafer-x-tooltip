@@ -44,16 +44,22 @@ export class TooltipPlugin {
    * @private
    */
   private readonly bindEventIds: Array<IEventListenerId>
-
+  /**
+   * 保留 createTooltip 引用，用于移除事件
+   * @param { MouseEvent } event - DOM 事件
+   * @private
+   */
   private _createTooltip: (event: MouseEvent) => void
+
+  private styleSheetElement: HTMLStyleElement
 
   constructor(app: Leafer, config: UserConfig) {
     this.app = app
     this.config = config
-    this.domId = `ltp--${randomStr(8)}`
+    this.domId = `lxt--${randomStr(8)}`
     this.bindEventIds = []
     this.initEvent()
-    this.initCreateCssClass()
+    this.initCssClass()
     this.initTooltip()
   }
 
@@ -109,8 +115,16 @@ export class TooltipPlugin {
    * 创建样式
    * @private
    */
-  private initCreateCssClass() {
-    createCssClass(`.${PLUGIN_NAME}`, {
+  private initCssClass() {
+    if (this.styleSheetElement) return
+    // 如果之前被创建过，直接获取
+    const styleSheetElement = document.querySelector(`.${PLUGIN_NAME}`)
+    if (styleSheetElement) {
+      this.styleSheetElement = styleSheetElement as HTMLStyleElement
+      return
+    }
+    // 初始化创建一个样式
+    this.styleSheetElement = createCssClass(`.${PLUGIN_NAME}`, {
       padding: '8px 10px',
       backgroundColor: '#fff',
       borderRadius: '2px',
@@ -191,6 +205,43 @@ export class TooltipPlugin {
    */
   public getDomId() {
     return this.domId
+  }
+
+  /**
+   * 创建样式规则
+   * @param selector
+   * @param useRules
+   */
+  public createStyleRule(selector: string, useRules: string | Record<string, string>) {
+    createCssClass(`${selector}[${ATTRS_NAME}=${this.domId}]`, useRules, this.styleSheetElement)
+  }
+
+  /**
+   * 移除样式规则
+   * @param selector
+   */
+  public removeStyleRule(selector: string) {
+    const styleSheet = this.styleSheetElement.sheet
+    if (!styleSheet) return
+    const index = this.findStyleRuleIndex(selector)
+    if (index === -1) return
+    styleSheet.deleteRule(index)
+  }
+
+  /**
+   * 查找样式规则索引
+   * @param selector
+   */
+  public findStyleRuleIndex(selector: string): number {
+    const styleSheet = this.styleSheetElement.sheet
+    if (!styleSheet) return -1
+    const rules = styleSheet.cssRules
+    const fullSelector = `${selector}[${ATTRS_NAME}="${this.domId}"]`
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i] as CSSStyleRule
+      if (rule.selectorText === fullSelector) return i
+    }
+    return -1
   }
 
   /**

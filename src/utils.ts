@@ -10,7 +10,7 @@
 import { cssStyleType, UserConfig } from './types';
 
 export const PLUGIN_NAME = 'leafer-x-tooltip';
-export const ATTRS_NAME = 'data-leafer-tooltip-id';
+export const ATTRS_NAME = 'data-lxt-id';
 
 /**
  * 异常抛出函数
@@ -72,14 +72,18 @@ export function camelCaseToDash(str: string) {
 
 /**
  * 创建 css 类
- * @param selector
- * @param useRules
+ * @param selector - 选择器
+ * @param useRules - 用户自定义样式
+ * @param userStyleElement - 用户自定义 style 标签
  */
-export function createCssClass(selector: string, useRules: string | cssStyleType) {
-  const styleElement: HTMLStyleElement = document.createElement('style');
-  // 给标签加一个标识，方便后续查找和删除
-  styleElement.setAttribute(PLUGIN_NAME,'')
-  document.head.appendChild(styleElement);
+export function createCssClass(selector: string, useRules: string | cssStyleType, userStyleElement?: HTMLStyleElement) {
+  let styleElement = userStyleElement
+  if (!styleElement && !(userStyleElement instanceof HTMLStyleElement)) {
+    styleElement = document.createElement('style');
+    // 给标签加一个标识，方便后续查找和删除
+    styleElement.setAttribute(PLUGIN_NAME,'')
+    document.head.appendChild(styleElement);
+  }
 
   // 处理样式
   let rules = typeof useRules === 'string' ? useRules : '';
