@@ -3,7 +3,7 @@
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
  * @LastEditTime: 2024-02-27 00:55:31
- * @Description: 
+ * @Description: Readme
  * @FilePath: /leafer-x-tooltip/README.md
 -->
 # leafer-x-tooltip
@@ -12,10 +12,12 @@ Tooltip 插件主要用于 Leafer 元素/节点上 展示一些自定义信息�
 
 使用 Tooltip 插件后，当鼠标悬浮在元素上时，会显示一个弹框展示节点的详细信息。
 
-> 注意：该插件强依赖 v1.0.0.rc.1 以上版本  
-> v1.0.0.rc.1 以下版本，请使用 [leafer-tooltip-plugin](https://arc.net/l/quote/fcppgncg) 插件
+> 注意：该插件强依赖 leafer v1.0.0.rc.17 **及以上**版本, 目前没有对 rc.17 以下版本做兼容测试处理  
+> 如果你的项目使用的 leafer v1.0.0.rc.1 **以下**版本，请使用 [leafer-tooltip-plugin](https://arc.net/l/quote/fcppgncg) 插件
 
 ## 参与开发
+
+**注意：** 请使用 `npm` 作为包管理器安装依赖，当使用 `pnpm` 安装依赖开发时正常，打包会报错。
 
 ```sh
 npm run start # 开始运行项目
@@ -38,9 +40,11 @@ npm i leafer-x-plugin --save
 使用插件时，传入 `getContent` 参数，并返回需要展示的内容即可
 
 ```js
-import { plugin } from 'leafer-x-tooltip';
-
-usePlugin(plugin, {
+import { TooltipPlugin } from 'leafer-x-tooltip';
+// 需要传入 leafer 实例
+const leafer = new Leafer({ view: window })
+// 创建插件实例
+const plugin = new TooltipPlugin(leafer, {
   getContent(node) {
     const dom = `<ul style="list-style: none; margin: 0; padding: 0">
       <li>节点类型：${node.tag}</li>
@@ -62,9 +66,11 @@ usePlugin(plugin, {
 传入 `includeTypes` 参数，限制允许显示提示框的类型
 
 ```js
-import { plugin } from 'leafer-x-tooltip';
-
-usePlugin(plugin, {
+import { TooltipPlugin } from 'leafer-x-tooltip';
+// 需要传入 leafer 实例
+const leafer = new Leafer({ view: window })
+// 创建插件实例
+const plugin = new TooltipPlugin(leafer, {
   includeTypes: ['Ellipse'],
   getContent(node) {
     const dom = `<ul style="list-style: none; margin: 0; padding: 0">
@@ -84,15 +90,14 @@ usePlugin(plugin, {
 
 ## 允许自定义容器类样式
 
-默认情况下，插件会对所有 leafer 实例生效。  
-有时我们只需要指定的实例生效，这时我们可以自定义注册类型。
-
-声明注册类型后，需要将 leafer 实例类型指定为该类型
+传入 `className` 参数，自定义容器类样式
 
 ```js
-import { plugin } from 'leafer-x-tooltip';
-
-usePlugin(plugin, {
+import { TooltipPlugin } from 'leafer-x-tooltip';
+// 需要传入 leafer 实例
+const leafer = new Leafer({ view: window })
+// 创建插件实例
+const plugin = new TooltipPlugin(leafer, {
   // 指定注册类型
   className: 'my-tooltip-plugin',
   getContent(node) {
