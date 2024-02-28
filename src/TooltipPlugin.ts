@@ -129,7 +129,6 @@ export class TooltipPlugin {
       backgroundColor: '#fff',
       borderRadius: '2px',
       boxShadow: '0 0 4px #e2e2e2',
-      transition: 'opacity 0.3s'
     })
   }
 
@@ -164,7 +163,7 @@ export class TooltipPlugin {
     this.mouseoverNode = null
     const tooltipDOM = getTooltip(this.domId)
     if (tooltipDOM) {
-      tooltipDOM.style.opacity = '0'
+      tooltipDOM.style.display = 'none'
     }
   }
 
@@ -194,7 +193,6 @@ export class TooltipPlugin {
     addStyle(container, {
       display: 'block',
       position: 'absolute',
-      opacity: '1',
       left: event.pageX + 4 + 'px',
       top: event.pageY + 4 + 'px'
     })
