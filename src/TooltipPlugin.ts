@@ -129,6 +129,7 @@ export class TooltipPlugin {
       backgroundColor: '#fff',
       borderRadius: '2px',
       boxShadow: '0 0 4px #e2e2e2',
+      display: 'none',
     })
   }
 
