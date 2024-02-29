@@ -51,7 +51,7 @@ export class TooltipPlugin {
    */
   private _createTooltip: (event: MouseEvent) => void
 
-  private styleSheetElement: HTMLStyleElement
+  public styleSheetElement: HTMLStyleElement
 
   constructor(app: Leafer, config: UserConfig) {
     this.app = app
@@ -234,7 +234,7 @@ export class TooltipPlugin {
     const styleSheet = this.styleSheetElement.sheet
     if (!styleSheet) return -1
     const rules = styleSheet.cssRules
-    const fullSelector = `${selector}[${ATTRS_NAME}="${this.domId}"]`
+    const fullSelector = `${selector}[${ATTRS_NAME}=${this.domId}]`
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i] as CSSStyleRule
       if (rule.selectorText === fullSelector) return i
