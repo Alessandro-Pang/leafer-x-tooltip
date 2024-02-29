@@ -14,7 +14,7 @@ import {
   addStyle,
   allowNodeType,
   assert,
-  ATTRS_NAME, createCssClass,
+  ATTRS_NAME, createCssClass, denyNodeType,
   getTooltip, PLUGIN_NAME, randomStr
 } from './utils'
 
@@ -90,10 +90,12 @@ export class TooltipPlugin {
     }
     // 判断是否允许显示的节点类型
     const isAllowType = allowNodeType(this.config, node.tag)
+    // 判断是否不允许显示的节点类型
+    const isDenyType = denyNodeType(this.config, node.tag)
     // 判断是否允许显示
     const isShouldBegin = this.config.shouldBegin ? this.config.shouldBegin(event) : true
     // 不允许显示
-    if (!isAllowType || !isShouldBegin) {
+    if (!isAllowType || isDenyType || !isShouldBegin) {
       this.hideTooltip()
       return
     }
@@ -129,7 +131,6 @@ export class TooltipPlugin {
       backgroundColor: '#fff',
       borderRadius: '2px',
       boxShadow: '0 0 4px #e2e2e2',
-      display: 'none',
     })
   }
 
@@ -144,6 +145,7 @@ export class TooltipPlugin {
       container = document.createElement('div')
     }
     container.setAttribute(ATTRS_NAME, this.domId)
+    container.style.display = 'none'
     // 允许用户自定义样式
     if (this.config.className) {
       container.className = this.config.className

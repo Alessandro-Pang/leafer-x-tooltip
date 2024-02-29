@@ -56,6 +56,19 @@ export function allowNodeType(config: UserConfig, type: string): boolean {
 }
 
 /**
+ * 不允许显示的节点类型
+ * @param config
+ * @param type
+ * @returns { Boolean }
+ */
+export function denyNodeType(config: UserConfig, type: string): boolean {
+  if (!Array.isArray(config?.excludeTypes)) return false
+  if (config.excludeTypes.length === 0) return false;
+  return config.excludeTypes.includes(type);
+}
+
+
+/**
  * 获取 tooltip dom
  * @param dataId
  * @returns { HTMLElement | null  }

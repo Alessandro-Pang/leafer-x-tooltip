@@ -19,6 +19,7 @@ function addStyle(container: HTMLElement, styles: Record<string, string>) {
   })
 }
 
+// 初始化 body
 function initBody() {
   const styles = {
     margin: '0',
@@ -52,7 +53,8 @@ function createWrapper(title: string) {
   const wrapper = document.createElement('div')
   addStyle(wrapper, {
     border: '1px solid #e2e2e2',
-    width: '50%',
+    width: '33%',
+    minWidth: '460px',
     height: '50%',
     boxSizing: 'border-box'
   })
@@ -80,7 +82,7 @@ function createWrapper(title: string) {
 // 添加 Leafer 节点
 function createPluginDemo(title: string, config: UserConfig) {
   const view = createWrapper(title)
-  const leafer = new Leafer({ view })
+  const leafer = new Leafer({ view, type: 'draw' })
 
   const rect = Leafer.one({
     tag: 'Rect',
@@ -172,6 +174,20 @@ createPluginDemo('Tooltip 仅允许圆形触发',{
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 2 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 2 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+createPluginDemo('Tooltip 仅不允许圆形触发',{
+  excludeTypes: ['Ellipse'],
+  getContent: (node: ILeaf) => {
+    return `<ul style="list-style: none; margin: 0; padding: 0">
+        <li>节点类型：${node.tag}</li>
+        <li>宽度：${node.width}</li>
+        <li>高度：${node.height}</li>
+      </ul>
+      `
+  }
+})
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 2 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 3 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 createPluginDemo('自定义 Tooltip 容器样式',{
   className: 'custom-tooltip',
@@ -213,3 +229,19 @@ createPluginDemo('自定义显示控制方法: x > 100px',{
   }
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 4 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 5 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+createPluginDemo('自定义显示控制方法: y > 100px',{
+  shouldBegin: (event) => {
+    return event.target.y > 100
+  },
+  getContent: (node: ILeaf) => {
+    return `<ul style="list-style: none; margin: 0; padding: 0">
+        <li>节点类型：${node.tag}</li>
+        <li>宽度：${node.width}</li>
+        <li>高度：${node.height}</li>
+      </ul>
+      `
+  }
+})
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 5 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

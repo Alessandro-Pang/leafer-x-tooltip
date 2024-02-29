@@ -21,6 +21,7 @@ export declare type Noop = () => void;
  export declare type UserConfig = {
   className?: string,
   includeTypes?: Array<string>,
+  excludeTypes?: Array<string>
   shouldBegin?: (event: PointerEvent) => boolean,
   getContent: (node: ILeaf) => string,
 }

@@ -61,7 +61,7 @@ const plugin = new TooltipPlugin(leafer, {
 
 ![效果演示](./readme/image-1.gif)
 
-## 允许限制指定的元素类型
+## 允许仅显示指定的类型
 
 传入 `includeTypes` 参数，限制允许显示提示框的类型
 
@@ -87,6 +87,34 @@ const plugin = new TooltipPlugin(leafer, {
 ### 效果演示
 
 ![效果演示](./readme/image-2.gif)
+
+## 允许仅不显示指定的元素类型
+
+传入 `excludeTypes` 参数，限制允许显示提示框的类型
+
+```js
+import { TooltipPlugin } from 'leafer-x-tooltip';
+// 需要传入 leafer 实例
+const leafer = new Leafer({ view: window })
+// 创建插件实例
+const plugin = new TooltipPlugin(leafer, {
+  exincludeTypes: ['Ellipse'],
+  getContent(node) {
+    const dom = `<ul style="list-style: none; margin: 0; padding: 0">
+      <li>节点类型：${node.tag}</li>
+      <li>宽度：${node.width}</li>
+      <li>高度：${node.height}</li>
+    </ul>
+    `;
+    return dom;
+  },
+});
+```
+
+### 效果演示
+
+![效果演示](./readme/image-4.gif)
+
 
 ## 允许自定义容器类样式
 
@@ -143,8 +171,8 @@ const leafer = new Leafer({ view: window })
 // 创建插件实例
 const plugin = new TooltipPlugin(leafer, {
   shouldBegin: (event) => {
-    // 判断是否是 Ellipse 类型
-    return event.target instanceof Ellipse
+    // 限制鼠标位置
+    return event.target.y > 100
   },
   getContent(node) {
     const dom = `<ul style="list-style: none; margin: 0; padding: 0">
@@ -160,7 +188,7 @@ const plugin = new TooltipPlugin(leafer, {
 
 ### 效果演示
 
-![效果演示](./readme/image-2.gif)
+![效果演示](./readme/image-5.gif)
 
 # 属性列表
 
