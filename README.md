@@ -129,6 +129,39 @@ css 中添加自定义的类样式
 
 ![image](./readme/image-3.png)
 
+
+## 允许自定义限制方法
+
+传入 `shouldBegin` 参数，允许自定义限制方法。
+
+`shouldBegin` 为一个函数，传入 `MouseEvent`, 你可以拿到整个事件和触发事件的`node`,要求返回一个 `Boolean` 控制是否显示
+
+```js
+import { TooltipPlugin } from 'leafer-x-tooltip';
+// 需要传入 leafer 实例
+const leafer = new Leafer({ view: window })
+// 创建插件实例
+const plugin = new TooltipPlugin(leafer, {
+  shouldBegin: (event) => {
+    // 判断是否是 Ellipse 类型
+    return event.target instanceof Ellipse
+  },
+  getContent(node) {
+    const dom = `<ul style="list-style: none; margin: 0; padding: 0">
+      <li>节点类型：${node.tag}</li>
+      <li>宽度：${node.width}</li>
+      <li>高度：${node.height}</li>
+    </ul>
+    `;
+    return dom;
+  },
+});
+```
+
+### 效果演示
+
+![效果演示](./readme/image-2.gif)
+
 # 属性列表
 
 | 属性           | 类型    | 说明                                             | 默认值｜ |
@@ -141,13 +174,12 @@ css 中添加自定义的类样式
 
 # 方法列表
 
-| 方法名                | 说明                      | 参数类型                | 返回值类型  |
-|--------------------|-------------------------|---------------------|--------|
-| getDomId           | 返回 tooltip 容器 DOM ID    | -                   | String |
-| createStyleRule    | 创建一个 css 类样式规则，自带作用域无污染 | `string`            | -      |
-| removeStyleRule    | 移除一个 css 类样式规则          | `string`            | -      |
-| findStyleRuleIndex | 查找一个创建的类样式规则，返回索引       | string              | -      |
-| addClass           | 往容器添加类样式                | `string\|string[] ` | -      |
-| removeClass        | 移除容器的类样式                | `string\|string[] ` | -      |
-| destroy            | 销毁插件                    | -                   | -      |
-
+| 方法名                | 说明                                           | 参数类型                | 返回值类型  |
+|--------------------|----------------------------------------------|---------------------|--------|
+| getDomId           | 返回 tooltip 容器 DOM ID                         | -                   | String |
+| createStyleRule    | 创建一个 css 类样式规则，自带作用域无污染                      | `string`            | -      |
+| removeStyleRule    | 移除一个 css 类样式规则，移除通过 `createStyleRule` 创建的类样式 | `string`            | -      |
+| findStyleRuleIndex | 查找一个创建的类样式规则，返回索引                            | string              | -      |
+| addClass           | 往容器添加类样式                                     | `string\|string[] ` | -      |
+| removeClass        | 移除容器的类样式                                     | `string\|string[] ` | -      |
+| destroy            | 销毁插件                                         | -                   | -      |
