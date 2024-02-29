@@ -21,6 +21,7 @@ const port = 12121 // visit http://localhost:12121
 
 
 const isDev = process.env.NODE_ENV === 'development'
+const isPublish = process.env.NODE_ENV === 'publish'
 const platformName = process.env.PLATFORM
 
 const platform = {
@@ -48,8 +49,7 @@ const plugins = [
 
 let config
 
-
-if (isDev) {
+if (isDev || isPublish) {
 
     config = {
         input: 'main.ts',
@@ -64,15 +64,29 @@ if (isDev) {
                 title: "Leafer Plugin",
                 meta: [{ charset: 'utf-8' }, { name: 'viewport', content: 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no' }]
             }),
-            livereload(),
+            livereload({ watch: 'dev/' }),
             serve({ contentBase: ['dev/'], port })
         ]
     }
 
+} else if (isPublish) {
+    config = {
+        input: 'main.ts',
+        output: {
+            file: 'dev/bundle.js',
+            format: 'esm'
+        },
+        plugins: [
+            ...plugins,
+            html({
+                title: "Leafer Plugin",
+                meta: [{ charset: 'utf-8' }, { name: 'viewport', content: 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no' }]
+            }),
+        ]
+    }
 } else {
 
     // build
-
     config = [{ // types/index.d.ts
         input: basePath + '/src/index.ts',
         output: {
