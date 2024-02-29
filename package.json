@@ -1,6 +1,7 @@
 {
   "name": "leafer-x-tooltip",
   "version": "1.1.1",
+  "description": "leafer tooltip plugin",
   "author": "zi.yang <pcy1314@163.com> (https://gitee.com/Alessandro-pang)",
   "license": "MIT",
   "type": "module",
@@ -11,10 +12,15 @@
   },
   "types": "types/index.d.ts",
   "files": [
-    "src",
     "types",
-    "dev",
     "dist"
+  ],
+  "keywords": [
+    "leafer",
+    "leafer ui",
+    "leafer plugin",
+    "tooltip",
+    "提示框"
   ],
   "repository": {
     "type": "git",
