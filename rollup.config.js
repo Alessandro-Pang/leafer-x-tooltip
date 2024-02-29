@@ -49,7 +49,7 @@ const plugins = [
 
 let config
 
-if (isDev || isPublish) {
+if (isDev) {
 
     config = {
         input: 'main.ts',
