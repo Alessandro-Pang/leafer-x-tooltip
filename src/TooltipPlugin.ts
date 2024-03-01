@@ -49,7 +49,7 @@ export class TooltipPlugin {
    * @param { MouseEvent } event - DOM 事件
    * @private
    */
-  private _createTooltip: (event: MouseEvent) => void
+  private readonly _moveTooltip: (event: MouseEvent) => void
 
   public styleSheetElement: HTMLStyleElement
 
@@ -60,7 +60,10 @@ export class TooltipPlugin {
     this.bindEventIds = []
     this.initEvent()
     this.initCssClass()
-    this.initTooltip()
+    this.initCreateTooltip()
+
+    // 使用箭头函数代替 .bind(this)
+    this._moveTooltip = (event)=>this.moveTooltip(event)
   }
 
   /**
@@ -109,8 +112,7 @@ export class TooltipPlugin {
   private viewReadyEvent() {
     if (!(this.app.view instanceof HTMLElement)) return
     assert(!this.app.view?.addEventListener, 'leafer.view 加载失败！')
-    this._createTooltip = this.createTooltip.bind(this)
-    this.app.view.addEventListener('mousemove', this._createTooltip)
+    this.app.view.addEventListener('mousemove', this._moveTooltip)
   }
 
   /**
@@ -138,7 +140,7 @@ export class TooltipPlugin {
    * 初始化 tooltip 容器
    * @private
    */
-  private initTooltip(): HTMLElement {
+  private initCreateTooltip(): HTMLElement {
     let container: HTMLElement | null = getTooltip(this.domId)
     const isExists = container !== null
     if (!isExists) {
@@ -170,34 +172,72 @@ export class TooltipPlugin {
     }
   }
 
-  /**
-   * 创建提示元素
-   * @param { MouseEvent } event DOM 事件
-   * @returns
-   * @private
-   */
-  private createTooltip(event: MouseEvent) {
-    if (!this.mouseoverNode) return
+  // 新加入的方法来计算Tooltip的位置
+  calculateTooltipPosition = (event: MouseEvent, tooltipElem: HTMLElement) => {
+    // 获取视窗的尺寸以及滚动条的位置
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const pageXOffset = window.scrollX;
+    const pageYOffset = window.scrollY;
+
+    // 获取鼠标位置
+    const mouseX = event.clientX + pageXOffset;
+    const mouseY = event.clientY + pageYOffset;
+
+    // 获取tooltip的尺寸
+    const tooltipWidth = tooltipElem.offsetWidth;
+    const tooltipHeight = tooltipElem.offsetHeight;
+
+    const emptySpace = 6; // 留出 6px 的空间
+    // 计算tooltip的理想位置
+    let x = mouseX + emptySpace;
+    let y = mouseY + emptySpace;
+
+    // 检查tooltip是否超出了右边界
+    if (x + tooltipWidth > windowWidth + pageXOffset) {
+      x = mouseX - tooltipWidth - emptySpace; // 调整到鼠标左侧
+    }
+
+    // 检查tooltip是否超出了下边界
+    if (y + tooltipHeight > windowHeight + pageYOffset) {
+      y = mouseY - tooltipHeight - emptySpace; // 调整到鼠标上方
+    }
+    return { x, y }
+  }
+
+  private getTooltipContent() {
     const argumentType = typeof this.config.getContent
     assert(
       argumentType !== 'function',
       `getContent 为必传参数，且必须是一个函数，当前为：${argumentType} 类型`
     )
-
     const content = this.config.getContent(this.mouseoverNode)
     assert(!content, `getContent 返回值不能为空`)
+    return content
+  }
 
-    let container: HTMLElement | null = getTooltip(this.domId)
-    // 容错机制，正常情况下不会出现
-    if (!container) {
-      container = this.initTooltip()
+  /**
+   * 创建提示元素
+   * @returns
+   * @private
+   * @param event
+   */
+  private moveTooltip(event: MouseEvent) {
+    if (!this.mouseoverNode) return
+
+    // 如果Tooltip已存在，则更新内容和位置
+    let tooltipContainer = getTooltip(this.domId)
+    if (!tooltipContainer) {
+      tooltipContainer = this.initCreateTooltip()
     }
-    container.innerHTML = content
-    addStyle(container, {
+    tooltipContainer.innerHTML = this.getTooltipContent()
+    // 使用计算位置的函数来设置Tooltip位置
+    const { x,y } = this.calculateTooltipPosition(event, tooltipContainer)
+    addStyle(tooltipContainer, {
       display: 'block',
       position: 'absolute',
-      left: event.pageX + 4 + 'px',
-      top: event.pageY + 4 + 'px'
+      left: `${x}px`,
+      top: `${y}px`
     })
   }
 
@@ -283,12 +323,12 @@ export class TooltipPlugin {
     this.app.off_(this.bindEventIds)
     this.bindEventIds.length = 0
     if (this.app.view instanceof HTMLElement) {
-      this.app.view.removeEventListener('mousemove', this._createTooltip)
+      this.app.view.removeEventListener('mousemove', this._moveTooltip)
     }
     // 移除 tooltip
-    const tooltip = getTooltip(this.domId)
-    if (tooltip) {
-      document.body.removeChild(tooltip)
+    const tooltipDOM = getTooltip(this.domId)
+    if (tooltipDOM && tooltipDOM.parentNode) {
+      tooltipDOM.parentNode.removeChild(tooltipDOM)
     }
   }
 }

@@ -54,7 +54,7 @@ function createWrapper(title: string) {
   addStyle(wrapper, {
     border: '1px solid #e2e2e2',
     width: '33%',
-    minWidth: '460px',
+    minWidth: '410px',
     height: '50%',
     boxSizing: 'border-box'
   })
