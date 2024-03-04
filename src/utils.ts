@@ -7,8 +7,6 @@
  * @FilePath: /leafer-x-tooltip/src/utils.ts
  */
 
-import { cssStyleType, UserConfig } from './types'
-
 export const PLUGIN_NAME = 'leafer-x-tooltip'
 export const ATTRS_NAME = 'data-lxt-id'
 
@@ -49,26 +47,26 @@ export function randomStr(length = 8) {
 
 /**
  * 允许显示的节点类型
- * @param config
+ * @param includeTypes
  * @param type
  * @returns { Boolean }
  */
-export function allowNodeType(config: UserConfig, type: string): boolean {
-  if (!Array.isArray(config?.includeTypes)) return true
-  if (config.includeTypes.length === 0) return true
-  return config.includeTypes.includes(type)
+export function allowNodeType(includeTypes: Array<string>, type: string): boolean {
+  if (!Array.isArray(includeTypes)) return true
+  if (includeTypes.length === 0) return true
+  return includeTypes.includes(type)
 }
 
 /**
  * 不允许显示的节点类型
- * @param config
+ * @param excludeTypes
  * @param type
  * @returns { Boolean }
  */
-export function denyNodeType(config: UserConfig, type: string): boolean {
-  if (!Array.isArray(config?.excludeTypes)) return false
-  if (config.excludeTypes.length === 0) return false
-  return config.excludeTypes.includes(type)
+export function denyNodeType(excludeTypes: Array<string>, type: string): boolean {
+  if (!Array.isArray(excludeTypes)) return false
+  if (excludeTypes.length === 0) return false
+  return excludeTypes.includes(type)
 }
 
 
@@ -93,7 +91,7 @@ export function camelCaseToDash(str: string) {
  * @param useRules - 用户自定义样式
  * @param userStyleElement - 用户自定义 style 标签
  */
-export function createCssClass(selector: string, useRules: string | cssStyleType, userStyleElement?: HTMLStyleElement) {
+export function createCssClass(selector: string, useRules: string | Record<string, string>, userStyleElement?: HTMLStyleElement) {
   let styleElement = userStyleElement
   if (!styleElement && !(userStyleElement instanceof HTMLStyleElement)) {
     styleElement = document.createElement('style')

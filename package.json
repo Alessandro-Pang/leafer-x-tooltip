@@ -47,7 +47,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.49.0",
     "jsdom": "^22.1.0",
-    "leafer-ui": "^1.0.0-rc.17",
+    "leafer-ui": "^1.0.0-rc.18",
     "rollup": "^3.29.2",
     "rollup-plugin-dts": "^6.0.2",
     "rollup-plugin-livereload": "^2.0.5",
@@ -59,7 +59,7 @@
     "vitest": "^0.34.4"
   },
   "dependencies": {
-    "@leafer-ui/core": "^1.0.0-rc.17",
-    "@leafer-ui/interface": "1.0.0-rc.17"
+    "@leafer-ui/core": "1.0.0-rc.18",
+    "@leafer-ui/interface": "1.0.0-rc.18"
   }
 }

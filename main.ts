@@ -6,11 +6,18 @@
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
-import { Leafer } from 'leafer-ui'
 
 import { TooltipPlugin } from './src'
 import { ILeaf } from '@leafer-ui/interface'
-import { UserConfig } from './src/types'
+import { PointerEvent, Leafer } from 'leafer-ui'
+
+type UserConfig = {
+  className?: string;
+  includeTypes?: Array<string>;
+  excludeTypes?: Array<string>;
+  shouldBegin?: (event: PointerEvent) => boolean;
+  getContent?: (node: ILeaf) => string;
+};
 
 // 添加样式
 function addStyle(container: HTMLElement, styles: Record<string, string>) {
@@ -143,62 +150,39 @@ function createPluginDemo(title: string, config: UserConfig) {
   leafer.add(polygon)
   leafer.add(star)
 
-  return new TooltipPlugin(leafer, config)
-}
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 1 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-createPluginDemo('Tooltip 默认实例', {
-  getContent: (node: ILeaf) => {
-    return `<ul style="list-style: none; margin: 0; padding: 0">
+  return new TooltipPlugin(leafer, {
+    getContent: (node: ILeaf) => {
+      return `<ul style="list-style: none; margin: 0; padding: 0">
         <li>节点类型：${node.tag}</li>
         <li>宽度：${node.width}</li>
         <li>高度：${node.height}</li>
       </ul>
       `
-  }
-})
+    },
+    ...config,
+  })
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 1 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+createPluginDemo('Tooltip 默认实例',{})
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 1 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 2 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 createPluginDemo('Tooltip 仅允许圆形触发',{
   includeTypes: ['Ellipse'],
-  getContent: (node: ILeaf) => {
-    return `<ul style="list-style: none; margin: 0; padding: 0">
-        <li>节点类型：${node.tag}</li>
-        <li>宽度：${node.width}</li>
-        <li>高度：${node.height}</li>
-      </ul>
-      `
-  }
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 2 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 2 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 createPluginDemo('Tooltip 仅不允许圆形触发',{
   excludeTypes: ['Ellipse'],
-  getContent: (node: ILeaf) => {
-    return `<ul style="list-style: none; margin: 0; padding: 0">
-        <li>节点类型：${node.tag}</li>
-        <li>宽度：${node.width}</li>
-        <li>高度：${node.height}</li>
-      </ul>
-      `
-  }
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 2 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 3 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 createPluginDemo('自定义 Tooltip 容器样式',{
   className: 'custom-tooltip',
-  getContent: (node: ILeaf) => {
-    return `<ul style="list-style: none; margin: 0; padding: 0">
-        <li>节点类型：${node.tag}</li>
-        <li>宽度：${node.width}</li>
-        <li>高度：${node.height}</li>
-      </ul>
-      `
-  }
 })
 const customStyle = document.createElement('style')
 customStyle.innerText = `
@@ -219,14 +203,6 @@ createPluginDemo('自定义显示控制方法: x > 100px',{
   shouldBegin: (event) => {
     return event.target.x > 100
   },
-  getContent: (node: ILeaf) => {
-    return `<ul style="list-style: none; margin: 0; padding: 0">
-        <li>节点类型：${node.tag}</li>
-        <li>宽度：${node.width}</li>
-        <li>高度：${node.height}</li>
-      </ul>
-      `
-  }
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 4 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`
 
@@ -235,13 +211,5 @@ createPluginDemo('自定义显示控制方法: y > 100px',{
   shouldBegin: (event) => {
     return event.target.y > 100
   },
-  getContent: (node: ILeaf) => {
-    return `<ul style="list-style: none; margin: 0; padding: 0">
-        <li>节点类型：${node.tag}</li>
-        <li>宽度：${node.width}</li>
-        <li>高度：${node.height}</li>
-      </ul>
-      `
-  }
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 5 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -9,14 +9,32 @@
 import { Leafer, LeaferEvent, PointerEvent } from '@leafer-ui/core'
 import type { IEventListenerId, ILeaf } from '@leafer-ui/interface'
 
-import type { UserConfig } from './types'
 import {
+  assert,
   addStyle,
   allowNodeType,
-  assert,
-  ATTRS_NAME, createCssClass, denyNodeType,
-  getTooltip, PLUGIN_NAME, randomStr
+  createCssClass,
+  denyNodeType,
+  getTooltip,
+  randomStr,
+  ATTRS_NAME,
+  PLUGIN_NAME,
 } from './utils'
+
+/**
+ * 用户配置
+ * @param { string } className - 自定义样式
+ * @param { Array<string> } includeTypes - 允许显示的 Leafer 节点类型
+ * @param { (event: PointerEvent) => boolean } shouldBegin - 是否显示 tooltip
+ * @param { (node: ILeaf) => string } getContent - 获取 tooltip 内容
+ */
+export type UserConfig = {
+  className?: string,
+  includeTypes?: Array<string>,
+  excludeTypes?: Array<string>
+  shouldBegin?: (event: PointerEvent) => boolean,
+  getContent: (node: ILeaf) => string,
+}
 
 export class TooltipPlugin {
   /**
@@ -63,7 +81,7 @@ export class TooltipPlugin {
     this.initCreateTooltip()
 
     // 使用箭头函数代替 .bind(this)
-    this._moveTooltip = (event)=>this.moveTooltip(event)
+    this._moveTooltip = (event) => this.moveTooltip(event)
   }
 
   /**
@@ -92,9 +110,9 @@ export class TooltipPlugin {
       return
     }
     // 判断是否允许显示的节点类型
-    const isAllowType = allowNodeType(this.config, node.tag)
+    const isAllowType = allowNodeType(this.config.includeTypes, node.tag)
     // 判断是否不允许显示的节点类型
-    const isDenyType = denyNodeType(this.config, node.tag)
+    const isDenyType = denyNodeType(this.config.excludeTypes, node.tag)
     // 判断是否允许显示
     const isShouldBegin = this.config.shouldBegin ? this.config.shouldBegin(event) : true
     // 不允许显示
@@ -132,7 +150,7 @@ export class TooltipPlugin {
       padding: '8px 10px',
       backgroundColor: '#fff',
       borderRadius: '2px',
-      boxShadow: '0 0 4px #e2e2e2',
+      boxShadow: '0 0 4px #e2e2e2'
     })
   }
 
@@ -173,34 +191,34 @@ export class TooltipPlugin {
   }
 
   // 新加入的方法来计算Tooltip的位置
-  calculateTooltipPosition = (event: MouseEvent, tooltipElem: HTMLElement) => {
+  private calculateTooltipPosition = (event: MouseEvent, tooltipElem: HTMLElement) => {
     // 获取视窗的尺寸以及滚动条的位置
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    const pageXOffset = window.scrollX;
-    const pageYOffset = window.scrollY;
+    const windowWidth = window.innerWidth
+    const windowHeight = window.innerHeight
+    const pageXOffset = window.scrollX
+    const pageYOffset = window.scrollY
 
     // 获取鼠标位置
-    const mouseX = event.clientX + pageXOffset;
-    const mouseY = event.clientY + pageYOffset;
+    const mouseX = event.clientX + pageXOffset
+    const mouseY = event.clientY + pageYOffset
 
     // 获取tooltip的尺寸
-    const tooltipWidth = tooltipElem.offsetWidth;
-    const tooltipHeight = tooltipElem.offsetHeight;
+    const tooltipWidth = tooltipElem.offsetWidth
+    const tooltipHeight = tooltipElem.offsetHeight
 
-    const emptySpace = 6; // 留出 6px 的空间
+    const emptySpace = 6 // 留出 6px 的空间
     // 计算tooltip的理想位置
-    let x = mouseX + emptySpace;
-    let y = mouseY + emptySpace;
+    let x = mouseX + emptySpace
+    let y = mouseY + emptySpace
 
     // 检查tooltip是否超出了右边界
     if (x + tooltipWidth > windowWidth + pageXOffset) {
-      x = mouseX - tooltipWidth - emptySpace; // 调整到鼠标左侧
+      x = mouseX - tooltipWidth - emptySpace // 调整到鼠标左侧
     }
 
     // 检查tooltip是否超出了下边界
     if (y + tooltipHeight > windowHeight + pageYOffset) {
-      y = mouseY - tooltipHeight - emptySpace; // 调整到鼠标上方
+      y = mouseY - tooltipHeight - emptySpace // 调整到鼠标上方
     }
     return { x, y }
   }
@@ -232,7 +250,7 @@ export class TooltipPlugin {
     }
     tooltipContainer.innerHTML = this.getTooltipContent()
     // 使用计算位置的函数来设置Tooltip位置
-    const { x,y } = this.calculateTooltipPosition(event, tooltipContainer)
+    const { x, y } = this.calculateTooltipPosition(event, tooltipContainer)
     addStyle(tooltipContainer, {
       display: 'block',
       position: 'absolute',
