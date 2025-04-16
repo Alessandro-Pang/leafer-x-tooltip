@@ -1,6 +1,6 @@
 {
   "name": "leafer-x-tooltip",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "leafer tooltip plugin",
   "author": "zi.yang <pcy1314@163.com> (https://gitee.com/Alessandro-pang)",
   "license": "MIT",
@@ -24,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alessandro-Pang/leafer-x-tooltip"
+    "url": "git+https://github.com/Alessandro-Pang/leafer-x-tooltip.git"
   },
   "homepage": "https://github.com/Alessandro-Pang/leafer-x-tooltip#readme",
   "bugs": "https://github.com/Alessandro-Pang/leafer-x-tooltip/issues",
