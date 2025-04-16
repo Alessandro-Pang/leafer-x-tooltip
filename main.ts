@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-10 15:16:18
+ * @LastEditTime: 2025-04-16 15:25:23
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
@@ -28,53 +28,172 @@ function initBody() {
     padding: '0',
     height: '100vh',
     display: 'flex',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    fontFamily: '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    background: '#f8f9fa',
+    overflow: 'auto',
+    justifyContent: 'center'
   }
   addStyle(document.body, styles)
+  
+  // 创建顶部导航栏
   const header = document.createElement('header')
   header.innerText = 'Leafer Tooltip Plugin'
   addStyle(header, {
     width: '100%',
-    height: '70px',
-    lineHeight: '70px',
+    height: '80px',
+    lineHeight: '80px',
     textAlign: 'center',
-    color: '#696969',
-    fontSize: '26px',
-    cursor: 'pointer'
+    color: '#2c3e50',
+    fontSize: '28px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    background: 'white',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    marginBottom: '20px',
+    position: 'sticky',
+    top: '0',
+    zIndex: '100'
   })
   header.onclick = () => {
     window.open('https://github.com/Alessandro-Pang/leafer-x-tooltip')
   }
   document.body.appendChild(header)
+  
+  // 添加页面说明
+  const description = document.createElement('div')
+  description.innerHTML = '<p>以下展示了Leafer Tooltip插件的不同配置效果，将鼠标悬停或点击图形查看提示效果</p>'
+  addStyle(description, {
+    width: '100%',
+    padding: '0 20px 20px',
+    textAlign: 'center',
+    color: '#6c757d',
+    boxSizing: 'border-box'
+  })
+  document.body.appendChild(description)
 }
 
 initBody()
+
+// 添加全局样式
+const globalStyle = document.createElement('style')
+globalStyle.innerText = `
+  .leafer-x-tooltip {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 14px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #333;
+    font-size: 13px;
+    font-weight: 400;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.2s;
+  }
+  
+  .custom-tooltip {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(0, 157, 255, 0.9), rgba(86, 192, 255, 0.9));
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 157, 255, 0.3);
+    backdrop-filter: blur(8px);
+  }
+  
+  .leafer-x-tooltip ul, .custom-tooltip ul {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .leafer-x-tooltip li, .custom-tooltip li {
+    margin-bottom: 5px;
+  }
+  
+  /* 响应式布局 */
+  @media screen and (max-width: 1200px) {
+    body > div {
+      width: calc(50% - 20px) !important;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    body > div {
+      width: calc(100% - 20px) !important;      min-height: 280px !important;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    body > div {
+      margin: 10px 5px !important;
+      width: calc(100% - 10px) !important;
+    }
+  }
+`
+document.body.appendChild(globalStyle)
 
 // 创建容器
 function createWrapper(title: string) {
   const wrapper = document.createElement('div')
   addStyle(wrapper, {
-    border: '1px solid #e2e2e2',
-    width: '33%',
-    minWidth: '410px',
-    height: '50%',
-    boxSizing: 'border-box'
+    border: 'none',
+    borderRadius: '12px',
+    width: 'calc(33.33% - 20px)',
+    minWidth: '320px',
+    maxWidth: '500px',
+    height: 'calc(50% - 20px)',
+    minHeight: '300px',
+    margin: '10px',
+    boxSizing: 'border-box',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+    background: 'white',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    overflow: 'hidden',
+    flexGrow: '1',
+    display: 'flex',
+    flexDirection: 'column'
   })
+  
+  // 添加悬停效果
+  wrapper.onmouseenter = () => {
+    addStyle(wrapper, {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+    })
+  }
+  wrapper.onmouseleave = () => {
+    addStyle(wrapper, {
+      transform: 'translateY(0)',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+    })
+  }
+  
   const demoTitle = document.createElement('h3')
   demoTitle.innerText = title
   addStyle(demoTitle, {
     textAlign: 'center',
-    height: '50px',
+    height: '60px',
     margin: '0',
-    color: '#969696',
-    lineHeight: '50px',
-    borderBottom: '1px solid #e2e2e2'
+    color: '#3a3a3a',
+    fontWeight: '500',
+    lineHeight: '60px',
+    borderBottom: '1px solid #f0f0f0',
+    background: '#fcfcfc'
   })
   wrapper.appendChild(demoTitle)
+  
   const chartBox = document.createElement('div')
   addStyle(chartBox, {
     width: '100%',
-    height: 'calc(100% - 50px)'
+    height: 'calc(100% - 60px)',
+    padding: '10px',
+    boxSizing: 'border-box',
+    flex: '1',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   })
   wrapper.appendChild(chartBox)
   document.body.appendChild(wrapper)
@@ -179,18 +298,6 @@ createPluginDemo('Tooltip 仅不允许圆形触发',{
 createPluginDemo('自定义 Tooltip 容器样式',{
   className: 'custom-tooltip',
 })
-const customStyle = document.createElement('style')
-customStyle.innerText = `
-.custom-tooltip {
-      border: 1px solid rgba(0, 157, 255, 0.62);
-      padding: 6px;
-      background-color: rgb(131, 207, 255);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 400;
-    }
-`
-document.body.appendChild(customStyle)
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 3 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 4 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -214,3 +321,83 @@ createPluginDemo('点击事件触发',{
   triggerType: 'click'
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 6 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 7 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+createPluginDemo('自定义位置偏移',{
+  // 创建一个自定义样式类
+  className: 'offset-tooltip',
+})
+// 添加自定义位置偏移样式
+const offsetStyle = document.createElement('style')
+offsetStyle.innerText = `
+  .offset-tooltip {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #333;
+    font-size: 13px;
+    font-weight: 400;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+    transform: translate(-20px, -20px) !important;
+    transition: all 0.3s ease;
+  }
+  
+  .offset-tooltip:hover {
+    transform: translate(-20px, -20px) scale(1.05) !important;
+  }
+`
+document.body.appendChild(offsetStyle)
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 7 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 8 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+createPluginDemo('自定义动画效果',{
+  className: 'animated-tooltip',
+})
+// 添加自定义动画效果样式
+const animatedStyle = document.createElement('style')
+animatedStyle.innerText = `
+  @keyframes tooltipFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animated-tooltip {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.9), rgba(255, 159, 0, 0.9));
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.3);
+    backdrop-filter: blur(8px);
+    animation: tooltipFadeIn 0.4s ease-out;
+  }
+  
+  .animated-tooltip ul li {
+    opacity: 0;
+    animation: tooltipFadeIn 0.3s ease-out forwards;
+  }
+  
+  .animated-tooltip ul li:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  
+  .animated-tooltip ul li:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .animated-tooltip ul li:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+`
+document.body.appendChild(animatedStyle)
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 8 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
