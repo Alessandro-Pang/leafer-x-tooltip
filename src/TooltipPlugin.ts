@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2024-02-27 11:35:30
+ * @LastEditTime: 2025-04-16 15:02:42
  * @Description: Tooltip 提示插件
  * @FilePath: /leafer-x-tooltip/src/TooltipPlugin.ts
  */
@@ -10,28 +10,31 @@ import { Leafer, LeaferEvent, PointerEvent } from '@leafer-ui/core'
 import type { IEventListenerId, ILeaf } from '@leafer-ui/interface'
 
 import {
-  assert,
   addStyle,
   allowNodeType,
+  assert,
+  ATTRS_NAME,
   createCssClass,
   denyNodeType,
   getTooltip,
-  randomStr,
-  ATTRS_NAME,
   PLUGIN_NAME,
+  randomStr,
 } from './utils'
 
 /**
  * 用户配置
  * @param { string } className - 自定义样式
  * @param { Array<string> } includeTypes - 允许显示的 Leafer 节点类型
+ * @param { Array<string> } excludeTypes - 不允许显示的 Leafer 节点类型
+ * @param { 'hover' | 'click' } triggerType - 触发方式，hover: 悬浮触发，click: 点击触发
  * @param { (event: PointerEvent) => boolean } shouldBegin - 是否显示 tooltip
  * @param { (node: ILeaf) => string } getContent - 获取 tooltip 内容
  */
 export type UserConfig = {
   className?: string,
   includeTypes?: Array<string>,
-  excludeTypes?: Array<string>
+  excludeTypes?: Array<string>,
+  triggerType?: 'hover' | 'click',
   shouldBegin?: (event: PointerEvent) => boolean,
   getContent: (node: ILeaf) => string,
 }
@@ -53,10 +56,10 @@ export class TooltipPlugin {
    */
   private readonly config: UserConfig
   /**
-   * @param { ILeaf } mouseoverNode - 鼠标移动到的节点
+   * @param { ILeaf } activeNode - 当前激活的节点（鼠标悬浮或点击的节点）
    * @private
    */
-  private mouseoverNode: ILeaf
+  private activeNode: ILeaf
   /**
    * @param { Array<string> } bindEventIds - 绑定的事件 id
    * @private
@@ -74,6 +77,10 @@ export class TooltipPlugin {
   constructor(app: Leafer, config: UserConfig) {
     this.app = app
     this.config = config
+    // 设置默认触发方式为悬浮
+    if (!this.config.triggerType) {
+      this.config.triggerType = 'hover'
+    }
     this.domId = `lxt--${randomStr(8)}`
     this.bindEventIds = []
     this.initEvent()
@@ -89,12 +96,20 @@ export class TooltipPlugin {
    * @private
    */
   private initEvent() {
-    // leafer 鼠标移动事件，用于捕获节点
-    const pointEventId = this.app.on_(PointerEvent.MOVE, this.leaferPointMove, this)
+    const eventIds = []
+    
+    // 挂载鼠标事件，用于悬浮、点击触发tooltip
+    const event = this.config.triggerType === 'hover' ? PointerEvent.MOVE : PointerEvent.CLICK
+    const eventFunc = this.config.triggerType === 'hover' ? this.leaferPointMove : this.leaferPointClick
+    const eventId = this.app.on_(event,eventFunc, this)
+    eventIds.push(eventId)
+    
     // 挂载画布事件
-    const vieReadId = this.app.on_(LeaferEvent.VIEW_READY, this.viewReadyEvent, this)
+    const viewReadyId = this.app.on_(LeaferEvent.VIEW_READY, this.viewReadyEvent, this)
+    eventIds.push(viewReadyId)
+    
     // 保存事件 id
-    this.bindEventIds.push(pointEventId, vieReadId)
+    this.bindEventIds.push(...eventIds)
   }
 
   /**
@@ -120,9 +135,51 @@ export class TooltipPlugin {
       this.hideTooltip()
       return
     }
-    this.mouseoverNode = node
+    this.activeNode = node
   }
 
+  /**
+   * leafer 鼠标点击事件
+   * @param event
+   * @private
+   */
+  private leaferPointClick(event: PointerEvent) {
+    const node = event.target
+    // 提前判断，避免后面额外计算
+    if (!node || node.isLeafer) {
+      // 如果点击的是空白区域，隐藏tooltip
+      this.hideTooltip()
+      return
+    }
+    
+    // 判断是否允许显示的节点类型
+    const isAllowType = allowNodeType(this.config.includeTypes, node.tag)
+    // 判断是否不允许显示的节点类型
+    const isDenyType = denyNodeType(this.config.excludeTypes, node.tag)
+    // 判断是否允许显示
+    const isShouldBegin = this.config.shouldBegin ? this.config.shouldBegin(event) : true
+    
+    // 不允许显示
+    if (!isAllowType || isDenyType || !isShouldBegin) {
+      this.hideTooltip()
+      return
+    }
+    
+    // 如果点击的是当前激活的节点且已经通过点击触发了tooltip，则隐藏tooltip
+    if (this.activeNode === node) {
+      this.hideTooltip()
+      return
+    }
+    
+    // 设置当前激活的节点和点击状态
+    this.activeNode = node
+    
+    // 手动触发一次moveTooltip，以便立即显示tooltip
+    if (this.app.view instanceof HTMLElement) {
+      this.moveTooltip(event)
+    }
+  }
+  
   /**
    * leafer view 加载完成事件
    * @private
@@ -130,7 +187,12 @@ export class TooltipPlugin {
   private viewReadyEvent() {
     if (!(this.app.view instanceof HTMLElement)) return
     assert(!this.app.view?.addEventListener, 'leafer.view 加载失败！')
-    this.app.view.addEventListener('mousemove', this._moveTooltip)
+    
+    // 只有在hover模式下才添加mousemove事件监听器
+    // 在click模式下，不需要监听mousemove事件，避免Tooltip随鼠标移动而更新位置
+    if (this.config.triggerType === 'hover') {
+      this.app.view.addEventListener('mousemove', this._moveTooltip)
+    }
   }
 
   /**
@@ -183,7 +245,7 @@ export class TooltipPlugin {
    * @private
    */
   private hideTooltip() {
-    this.mouseoverNode = null
+    this.activeNode = null
     const tooltipDOM = getTooltip(this.domId)
     if (tooltipDOM) {
       tooltipDOM.style.display = 'none'
@@ -191,16 +253,24 @@ export class TooltipPlugin {
   }
 
   // 新加入的方法来计算Tooltip的位置
-  private calculateTooltipPosition = (event: MouseEvent, tooltipElem: HTMLElement) => {
+  private calculateTooltipPosition = (event: PointerEvent | MouseEvent, tooltipElem: HTMLElement) => {
     // 获取视窗的尺寸以及滚动条的位置
     const windowWidth = window.innerWidth
     const windowHeight = window.innerHeight
     const pageXOffset = window.scrollX
     const pageYOffset = window.scrollY
 
+    let mouse =  { x: event.x, y: event.y }
+    if (event instanceof PointerEvent) {
+      mouse = { x: event.origin.x, y: event.origin.y }
+    }
+    if (event instanceof MouseEvent) {
+      mouse = { x: event.clientX, y: event.clientY }
+    }
+    
     // 获取鼠标位置
-    const mouseX = event.clientX + pageXOffset
-    const mouseY = event.clientY + pageYOffset
+    const mouseX = mouse.x + pageXOffset
+    const mouseY = mouse.y + pageYOffset
 
     // 获取tooltip的尺寸
     const tooltipWidth = tooltipElem.offsetWidth
@@ -229,7 +299,7 @@ export class TooltipPlugin {
       argumentType !== 'function',
       `getContent 为必传参数，且必须是一个函数，当前为：${argumentType} 类型`
     )
-    const content = this.config.getContent(this.mouseoverNode)
+    const content = this.config.getContent(this.activeNode)
     assert(!content, `getContent 返回值不能为空`)
     return content
   }
@@ -240,8 +310,10 @@ export class TooltipPlugin {
    * @private
    * @param event
    */
-  private moveTooltip(event: MouseEvent) {
-    if (!this.mouseoverNode) return
+  private moveTooltip(event: MouseEvent | PointerEvent) {
+    // 如果没有激活节点，则不显示tooltip
+    if (!this.activeNode) return
+    
 
     // 如果Tooltip已存在，则更新内容和位置
     let tooltipContainer = getTooltip(this.domId)
@@ -249,8 +321,12 @@ export class TooltipPlugin {
       tooltipContainer = this.initCreateTooltip()
     }
     tooltipContainer.innerHTML = this.getTooltipContent()
+    
+    // 根据触发方式决定使用哪个位置
+    const positionEvent = event
+    
     // 使用计算位置的函数来设置Tooltip位置
-    const { x, y } = this.calculateTooltipPosition(event, tooltipContainer)
+    const { x, y } = this.calculateTooltipPosition(positionEvent, tooltipContainer)
     addStyle(tooltipContainer, {
       display: 'block',
       position: 'absolute',
@@ -343,10 +419,49 @@ export class TooltipPlugin {
     if (this.app.view instanceof HTMLElement) {
       this.app.view.removeEventListener('mousemove', this._moveTooltip)
     }
+    // 重置状态
+    this.activeNode = null
     // 移除 tooltip
     const tooltipDOM = getTooltip(this.domId)
     if (tooltipDOM && tooltipDOM.parentNode) {
       tooltipDOM.parentNode.removeChild(tooltipDOM)
     }
+  }
+  
+  /**
+   * 设置触发方式
+   * @param triggerType 触发方式
+   */
+  public setTriggerType(triggerType: 'hover' | 'click') {
+    // 如果触发方式没有变化，则不做处理
+    if (this.config.triggerType === triggerType) return
+    
+    // 记录之前的触发方式
+    const prevTriggerType = this.config.triggerType
+    
+    // 移除之前的事件
+    this.app.off_(this.bindEventIds)
+    this.bindEventIds.length = 0
+    
+    // 更新触发方式
+    this.config.triggerType = triggerType
+    
+    // 重新初始化事件
+    this.initEvent()
+    
+    // 处理mousemove事件监听器
+    if (this.app.view instanceof HTMLElement) {
+      // 如果从hover模式切换到click模式，移除mousemove事件监听器
+      if (triggerType === 'click' && prevTriggerType === 'hover') {
+        this.app.view.removeEventListener('mousemove', this._moveTooltip)
+      }
+      // 如果从click模式切换到hover模式，添加mousemove事件监听器
+      else if (triggerType === 'hover' && prevTriggerType === 'click') {
+        this.app.view.addEventListener('mousemove', this._moveTooltip)
+      }
+    }
+    
+    // 隐藏tooltip
+    this.hideTooltip()
   }
 }

@@ -2,22 +2,17 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2024-02-27 00:52:04
+ * @LastEditTime: 2025-04-10 15:16:18
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
 
-import { TooltipPlugin } from './src'
-import { ILeaf } from '@leafer-ui/interface'
-import { PointerEvent, Leafer } from 'leafer-ui'
+import { Leafer } from 'leafer-ui'
 
-type UserConfig = {
-  className?: string;
-  includeTypes?: Array<string>;
-  excludeTypes?: Array<string>;
-  shouldBegin?: (event: PointerEvent) => boolean;
-  getContent?: (node: ILeaf) => string;
-};
+import { ILeaf } from '@leafer-ui/interface'
+
+import { TooltipPlugin } from './src'
+import type { UserConfig } from './src/TooltipPlugin'
 
 // 添加样式
 function addStyle(container: HTMLElement, styles: Record<string, string>) {
@@ -87,7 +82,7 @@ function createWrapper(title: string) {
 }
 
 // 添加 Leafer 节点
-function createPluginDemo(title: string, config: UserConfig) {
+function createPluginDemo(title: string, config: Omit<UserConfig, 'getContent'>) {
   const view = createWrapper(title)
   const leafer = new Leafer({ view, type: 'draw' })
 
@@ -213,3 +208,9 @@ createPluginDemo('自定义显示控制方法: y > 100px',{
   },
 })
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 5 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 6 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+createPluginDemo('点击事件触发',{
+  triggerType: 'click'
+})
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 6 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
