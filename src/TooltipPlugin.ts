@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-16 15:02:42
+ * @LastEditTime: 2025-04-23 13:31:11
  * @Description: Tooltip 提示插件
  * @FilePath: /leafer-x-tooltip/src/TooltipPlugin.ts
  */
@@ -72,6 +72,12 @@ export class TooltipPlugin {
    */
   private readonly _moveTooltip: (event: MouseEvent) => void
 
+  /**
+   * 保留 hideTooltip 引用，用于移除事件
+   * @private
+   */
+  private readonly _hideTooltip: () => void
+
   public styleSheetElement: HTMLStyleElement
 
   constructor(app: Leafer, config: UserConfig) {
@@ -89,6 +95,7 @@ export class TooltipPlugin {
 
     // 使用箭头函数代替 .bind(this)
     this._moveTooltip = (event) => this.moveTooltip(event)
+    this._hideTooltip = () => this.hideTooltip()
   }
 
   /**
@@ -107,22 +114,23 @@ export class TooltipPlugin {
     // 挂载画布事件
     const viewReadyId = this.app.on_(LeaferEvent.VIEW_READY, this.viewReadyEvent, this)
     eventIds.push(viewReadyId)
-    
+
     // 保存事件 id
     this.bindEventIds.push(...eventIds)
   }
 
   /**
-   * leafer 鼠标移动事件
-   * @param event
-   * @private
+   * 判断是否应该显示提示框
+   *
+   * @param node 节点对象
+   * @param event 鼠标事件
+   * @returns 是否应该显示提示框
    */
-  private leaferPointMove(event: PointerEvent) {
-    const node = event.target
+  private shouldShowTooltip(node: ILeaf, event: PointerEvent): boolean {
     // 提前判断，避免后面额外计算
     if (!node || node.isLeafer) {
       this.hideTooltip()
-      return
+      return false
     }
     // 判断是否允许显示的节点类型
     const isAllowType = allowNodeType(this.config.includeTypes, node.tag)
@@ -133,9 +141,21 @@ export class TooltipPlugin {
     // 不允许显示
     if (!isAllowType || isDenyType || !isShouldBegin) {
       this.hideTooltip()
-      return
+      return false
     }
-    this.activeNode = node
+    return true
+  }
+  
+  /**
+   * leafer 鼠标移动事件
+   * @param event
+   * @private
+   */
+  private leaferPointMove(event: PointerEvent) {
+    const node = event.target
+    if(this.shouldShowTooltip(node, event)) {
+      this.activeNode = node
+    }
   }
 
   /**
@@ -145,25 +165,7 @@ export class TooltipPlugin {
    */
   private leaferPointClick(event: PointerEvent) {
     const node = event.target
-    // 提前判断，避免后面额外计算
-    if (!node || node.isLeafer) {
-      // 如果点击的是空白区域，隐藏tooltip
-      this.hideTooltip()
-      return
-    }
-    
-    // 判断是否允许显示的节点类型
-    const isAllowType = allowNodeType(this.config.includeTypes, node.tag)
-    // 判断是否不允许显示的节点类型
-    const isDenyType = denyNodeType(this.config.excludeTypes, node.tag)
-    // 判断是否允许显示
-    const isShouldBegin = this.config.shouldBegin ? this.config.shouldBegin(event) : true
-    
-    // 不允许显示
-    if (!isAllowType || isDenyType || !isShouldBegin) {
-      this.hideTooltip()
-      return
-    }
+    if(!this.shouldShowTooltip(node, event)) return
     
     // 如果点击的是当前激活的节点且已经通过点击触发了tooltip，则隐藏tooltip
     if (this.activeNode === node) {
@@ -190,11 +192,13 @@ export class TooltipPlugin {
       this.app.view?.addEventListener === undefined, 
       'leafer.view 加载失败！'
     )
+
     
     // 只有在hover模式下才添加mousemove事件监听器
     // 在click模式下，不需要监听mousemove事件，避免Tooltip随鼠标移动而更新位置
     if (this.config.triggerType === 'hover') {
       this.app.view.addEventListener('mousemove', this._moveTooltip)
+      this.app.view.addEventListener('mouseleave', this._hideTooltip)
     }
   }
 
@@ -345,7 +349,8 @@ export class TooltipPlugin {
    * @private
    */
   private moveTooltip(event: MouseEvent | PointerEvent): void {
-    
+    if(this.activeNode === null) return
+
     // 获取或创建tooltip容器
     let tooltipContainer = getTooltip(this.domId)
     if (!tooltipContainer) {
@@ -378,6 +383,7 @@ export class TooltipPlugin {
    * 创建样式规则
    * @param selector
    * @param useRules
+   * @deprecated 该方法计划在下个版本中废弃，用户自行创建样式规则
    */
   public createStyleRule(selector: string, useRules: string | Record<string, string>) {
     createCssClass(`${selector}[${ATTRS_NAME}=${this.domId}]`, useRules, this.styleSheetElement)
@@ -386,6 +392,7 @@ export class TooltipPlugin {
   /**
    * 移除样式规则
    * @param selector
+   * @deprecated 该方法计划在下个版本中废弃
    */
   public removeStyleRule(selector: string) {
     const styleSheet = this.styleSheetElement.sheet
@@ -398,6 +405,7 @@ export class TooltipPlugin {
   /**
    * 查找样式规则索引
    * @param selector
+   * @deprecated 该方法计划在下个版本中废弃
    */
   public findStyleRuleIndex(selector: string): number {
     const styleSheet = this.styleSheetElement.sheet
@@ -450,6 +458,7 @@ export class TooltipPlugin {
     this.bindEventIds.length = 0
     if (this.app.view instanceof HTMLElement) {
       this.app.view.removeEventListener('mousemove', this._moveTooltip)
+      this.app.view.removeEventListener('mouseleave', this._hideTooltip)
     }
     // 重置状态
     this.activeNode = null
@@ -487,9 +496,11 @@ export class TooltipPlugin {
       if (triggerType === 'click' && prevTriggerType === 'hover') {
         // 从hover模式切换到click模式，移除mousemove事件监听器
         this.app.view.removeEventListener('mousemove', this._moveTooltip)
+        this.app.view.removeEventListener('mouseleave', this._hideTooltip)
       } else if (triggerType === 'hover' && prevTriggerType === 'click') {
         // 从click模式切换到hover模式，添加mousemove事件监听器
         this.app.view.addEventListener('mousemove', this._moveTooltip)
+        this.app.view.addEventListener('mouseleave', this._hideTooltip)
       }
     }
     

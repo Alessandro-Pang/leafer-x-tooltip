@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-16 15:25:23
+ * @LastEditTime: 2025-04-23 12:35:47
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
@@ -111,22 +111,28 @@ globalStyle.innerText = `
   .leafer-x-tooltip li, .custom-tooltip li {
     margin-bottom: 5px;
   }
+
+  .demo-wrapper:hover {
+    transform: 'translateY(-5px)',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+  }
   
   /* 响应式布局 */
   @media screen and (max-width: 1200px) {
-    body > div {
+    .demo-wrapper {
       width: calc(50% - 20px) !important;
     }
   }
   
   @media screen and (max-width: 768px) {
-    body > div {
-      width: calc(100% - 20px) !important;      min-height: 280px !important;
+    .demo-wrapper {
+      width: calc(100% - 20px) !important;      
+      min-height: 280px !important;
     }
   }
   
   @media screen and (max-width: 480px) {
-    body > div {
+    .demo-wrapper {
       margin: 10px 5px !important;
       width: calc(100% - 10px) !important;
     }
@@ -137,6 +143,7 @@ document.body.appendChild(globalStyle)
 // 创建容器
 function createWrapper(title: string) {
   const wrapper = document.createElement('div')
+  wrapper.className = 'demo-wrapper'
   addStyle(wrapper, {
     border: 'none',
     borderRadius: '12px',
@@ -155,20 +162,6 @@ function createWrapper(title: string) {
     display: 'flex',
     flexDirection: 'column'
   })
-  
-  // 添加悬停效果
-  wrapper.onmouseenter = () => {
-    addStyle(wrapper, {
-      transform: 'translateY(-5px)',
-      boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
-    })
-  }
-  wrapper.onmouseleave = () => {
-    addStyle(wrapper, {
-      transform: 'translateY(0)',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-    })
-  }
   
   const demoTitle = document.createElement('h3')
   demoTitle.innerText = title
@@ -340,7 +333,7 @@ offsetStyle.innerText = `
     font-weight: 400;
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(8px);
-    transform: translate(-20px, -20px) !important;
+    transform: translate(10px, -80px) !important;
     transition: all 0.3s ease;
   }
   
