@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2024-02-27 00:55:31
+ * @LastEditTime: 2025-04-23 13:57:07
  * @Description: Readme
  * @FilePath: /leafer-x-tooltip/README.md
 -->
@@ -15,7 +15,7 @@ Tooltip 插件主要用于 Leafer 元素/节点上 展示一些自定义信息�
 > 注意：该插件依赖 leafer v1.0.0.rc.17 **及以上**版本, 目前没有对 rc.17 以下版本做兼容测试处理  
 > 如果你的项目使用的 leafer v1.0.0.rc.1 **以下**版本，请使用 [leafer-tooltip-plugin](https://arc.net/l/quote/fcppgncg) 插件
 
-在线演示地址：https://alexpang.cn/leafer-x-tooltip/
+在线演示地址：<https://alexpang.cn/leafer-x-tooltip/>
 
 ## 参与开发
 
@@ -117,7 +117,6 @@ const plugin = new TooltipPlugin(leafer, {
 
 ![效果演示](./readme/image-4.gif)
 
-
 ## 允许自定义容器类样式
 
 传入 `className` 参数，自定义容器类样式
@@ -159,7 +158,6 @@ css 中添加自定义的类样式
 
 ![image](./readme/image-3.png)
 
-
 ## 允许自定义限制方法
 
 传入 `shouldBegin` 参数，允许自定义限制方法。
@@ -200,7 +198,7 @@ const plugin = new TooltipPlugin(leafer, {
 | includeTypes | `数组`  | 允许展示提示框的类型列表，类型列表传入字符串                         | 所有类型 |
 | shouldBegin  | `函数`  | 自定义显示控制函数，传入 MouseEvent, 要求返回一个 Boolean 控制是否显示 | 所有类型 |
 | getContent   | `函数`  | 显示的内容，传入 node 信息，要求返回一个 HTML 字符串               | -    |
-
+| triggerType   | `字符串`  | 事件触发类型，支持 `hover` 和 `click`               | `hover`    |
 
 # 方法列表
 
@@ -210,6 +208,6 @@ const plugin = new TooltipPlugin(leafer, {
 | createStyleRule    | 创建一个 css 类样式规则，自带作用域无污染                      | `string`            | -      |
 | removeStyleRule    | 移除一个 css 类样式规则，移除通过 `createStyleRule` 创建的类样式 | `string`            | -      |
 | findStyleRuleIndex | 查找一个创建的类样式规则，返回索引                            | string              | -      |
-| addClass           | 往容器添加类样式                                     | `string\|string[] ` | -      |
-| removeClass        | 移除容器的类样式                                     | `string\|string[] ` | -      |
+| addClass           | 往容器添加类样式                                     | `string\|string[]` | -      |
+| removeClass        | 移除容器的类样式                                     | `string\|string[]` | -      |
 | destroy            | 销毁插件                                         | -                   | -      |
