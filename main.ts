@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-24 19:53:12
+ * @LastEditTime: 2025-04-24 20:05:19
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
@@ -196,7 +196,7 @@ function createWrapper(title: string) {
 // 添加 Leafer 节点
 function createPluginDemo(title: string, config: Omit<UserConfig, 'getContent'>) {
   const view = createWrapper(title)
-  const app = new App({ view, tree: {type:'design'} })
+  const app = new App({ view, tree: {type:'draw'} })
   // const leafer = new Leafer({ view, type: 'draw' })
 
   const rect = Leafer.one({
