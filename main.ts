@@ -2,12 +2,12 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-23 12:35:47
+ * @LastEditTime: 2025-04-24 19:53:12
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
 
-import { Leafer } from 'leafer-ui'
+import { App, Leafer } from 'leafer-ui'
 
 import { ILeaf } from '@leafer-ui/interface'
 
@@ -196,7 +196,8 @@ function createWrapper(title: string) {
 // 添加 Leafer 节点
 function createPluginDemo(title: string, config: Omit<UserConfig, 'getContent'>) {
   const view = createWrapper(title)
-  const leafer = new Leafer({ view, type: 'draw' })
+  const app = new App({ view, tree: {type:'design'} })
+  // const leafer = new Leafer({ view, type: 'draw' })
 
   const rect = Leafer.one({
     tag: 'Rect',
@@ -252,12 +253,12 @@ function createPluginDemo(title: string, config: Omit<UserConfig, 'getContent'>)
     innerRadius: 0.382
   })
 
-  leafer.add(rect)
-  leafer.add(ellipse)
-  leafer.add(polygon)
-  leafer.add(star)
+  app.tree.add(rect)
+  app.tree.add(ellipse)
+  app.tree.add(polygon)
+  app.tree.add(star)
 
-  return new TooltipPlugin(leafer, {
+  return new TooltipPlugin(app, {
     getContent: (node: ILeaf) => {
       return `<ul style="list-style: none; margin: 0; padding: 0">
         <li>节点类型：${node.tag}</li>
@@ -317,31 +318,8 @@ createPluginDemo('点击事件触发',{
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 7 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 createPluginDemo('自定义位置偏移',{
-  // 创建一个自定义样式类
-  className: 'offset-tooltip',
+  offset: { x: 20,  y: -100 }
 })
-// 添加自定义位置偏移样式
-const offsetStyle = document.createElement('style')
-offsetStyle.innerText = `
-  .offset-tooltip {
-    border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
-    background-color: rgba(255, 255, 255, 0.95);
-    color: #333;
-    font-size: 13px;
-    font-weight: 400;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(8px);
-    transform: translate(10px, -80px) !important;
-    transition: all 0.3s ease;
-  }
-  
-  .offset-tooltip:hover {
-    transform: translate(-20px, -20px) scale(1.05) !important;
-  }
-`
-document.body.appendChild(offsetStyle)
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Demo 7 End <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Demo 8 Begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

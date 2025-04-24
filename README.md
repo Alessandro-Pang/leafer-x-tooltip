@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-23 13:57:07
+ * @LastEditTime: 2025-04-24 19:50:41
  * @Description: Readme
  * @FilePath: /leafer-x-tooltip/README.md
 -->
@@ -192,13 +192,14 @@ const plugin = new TooltipPlugin(leafer, {
 
 # 属性列表
 
-| 属性           | 类型    | 说明                                             | 默认值｜ |
+| 属性           | 类型    | 说明                                             | 默认值 |
 |--------------|-------|------------------------------------------------|------|
-| className    | `字符串` | 自定义容器类样式，自定义样式会覆盖默认样式                          | -    |
-| includeTypes | `数组`  | 允许展示提示框的类型列表，类型列表传入字符串                         | 所有类型 |
-| shouldBegin  | `函数`  | 自定义显示控制函数，传入 MouseEvent, 要求返回一个 Boolean 控制是否显示 | 所有类型 |
-| getContent   | `函数`  | 显示的内容，传入 node 信息，要求返回一个 HTML 字符串               | -    |
-| triggerType   | `字符串`  | 事件触发类型，支持 `hover` 和 `click`               | `hover`    |
+| className    | `string` | 自定义容器类样式，自定义样式会覆盖默认样式                          | -    |
+| offset    | `number`、`[number, number]`、 `{x: number, y: number}` | 偏移量数值                          | 6    |
+| includeTypes | `string[]`  | 允许展示提示框的类型列表，类型列表传入字符串                         | 所有类型 |
+| shouldBegin  | `function`  | 自定义显示控制函数，传入 MouseEvent, 要求返回一个 Boolean 控制是否显示 | 所有类型 |
+| getContent   | `function`  | 显示的内容，传入 node 信息，要求返回一个 HTML 字符串               | -    |
+| triggerType   | `string`  | 事件触发类型，支持 `hover` 和 `click`               | `hover`    |
 
 # 方法列表
 
@@ -207,7 +208,7 @@ const plugin = new TooltipPlugin(leafer, {
 | getDomId           | 返回 tooltip 容器 DOM ID                         | -                   | String |
 | createStyleRule    | 创建一个 css 类样式规则，自带作用域无污染                      | `string`            | -      |
 | removeStyleRule    | 移除一个 css 类样式规则，移除通过 `createStyleRule` 创建的类样式 | `string`            | -      |
-| findStyleRuleIndex | 查找一个创建的类样式规则，返回索引                            | string              | -      |
+| findStyleRuleIndex | 查找一个创建的类样式规则，返回索引                            | `string`              | -      |
 | addClass           | 往容器添加类样式                                     | `string\|string[]` | -      |
 | removeClass        | 移除容器的类样式                                     | `string\|string[]` | -      |
 | destroy            | 销毁插件                                         | -                   | -      |

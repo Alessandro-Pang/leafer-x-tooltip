@@ -2,11 +2,11 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-23 13:31:11
+ * @LastEditTime: 2025-04-24 18:44:46
  * @Description: Tooltip 提示插件
  * @FilePath: /leafer-x-tooltip/src/TooltipPlugin.ts
  */
-import { Leafer, LeaferEvent, PointerEvent } from '@leafer-ui/core'
+import { App, Leafer, LeaferEvent, PointerEvent } from '@leafer-ui/core'
 import type { IEventListenerId, ILeaf } from '@leafer-ui/interface'
 
 import {
@@ -22,6 +22,21 @@ import {
 } from './utils'
 
 /**
+ * Offset 偏移类型, px 单位
+ * @description 偏移量可以是数字，也可以是对象或数组，默认偏移 6px
+ * @example
+ * offset: {
+ *   x: 10,
+ *   y: 20
+ * }
+ * 或者
+ * offset: [10, 20]
+ * 或者
+ * offset: 10
+ */
+export type IOffset = number | { x: number,  y: number,} | [number, number]
+
+/**
  * 用户配置
  * @param { string } className - 自定义样式
  * @param { Array<string> } includeTypes - 允许显示的 Leafer 节点类型
@@ -35,6 +50,7 @@ export type UserConfig = {
   includeTypes?: Array<string>,
   excludeTypes?: Array<string>,
   triggerType?: 'hover' | 'click',
+  offset?: IOffset,
   shouldBegin?: (event: PointerEvent) => boolean,
   getContent: (node: ILeaf) => string,
 }
@@ -44,7 +60,7 @@ export class TooltipPlugin {
    * @param { Leafer } app - leafer 实例
    * @private
    */
-  private readonly app: Leafer
+  private readonly app: Leafer | App
   /**
    * @param { string } domId - tooltip 容器 id
    * @private
@@ -80,7 +96,7 @@ export class TooltipPlugin {
 
   public styleSheetElement: HTMLStyleElement
 
-  constructor(app: Leafer, config: UserConfig) {
+  constructor(app: Leafer | App, config: UserConfig) {
     this.app = app
     this.config = config
     // 设置默认触发方式为悬浮
@@ -128,7 +144,7 @@ export class TooltipPlugin {
    */
   private shouldShowTooltip(node: ILeaf, event: PointerEvent): boolean {
     // 提前判断，避免后面额外计算
-    if (!node || node.isLeafer) {
+    if (!node || node.isLeafer || node.isApp) {
       this.hideTooltip()
       return false
     }
@@ -305,19 +321,20 @@ export class TooltipPlugin {
     const tooltipWidth = tooltipElem.offsetWidth
     const tooltipHeight = tooltipElem.offsetHeight
 
-    const emptySpace = 6 // 留出 6px 的空间
+    const offset = this.getOffset()
+
     // 计算tooltip的理想位置
-    let x = mouseX + emptySpace
-    let y = mouseY + emptySpace
+    let x = mouseX + offset.x
+    let y = mouseY + offset.y
 
     // 检查tooltip是否超出了右边界
     if (x + tooltipWidth > windowWidth + pageXOffset) {
-      x = mouseX - tooltipWidth - emptySpace // 调整到鼠标左侧
+      x = mouseX - tooltipWidth - offset.x // 调整到鼠标左侧
     }
 
     // 检查tooltip是否超出了下边界
     if (y + tooltipHeight > windowHeight + pageYOffset) {
-      y = mouseY - tooltipHeight - emptySpace // 调整到鼠标上方
+      y = mouseY - tooltipHeight - offset.y // 调整到鼠标上方
     }
     
     return { x, y }
@@ -377,6 +394,23 @@ export class TooltipPlugin {
    */
   public getDomId() {
     return this.domId
+  }
+
+  
+  /**
+   * 获取偏移量
+   *
+   * @returns 返回包含x和y偏移量的对象
+   */
+  public getOffset(): {x: number, y: number} {
+    const offset = this.config.offset;
+    if(typeof offset === 'number') return {x: offset, y: offset }
+    if(Array.isArray(offset)) {
+      const [x, y] = offset
+      return {x, y}
+    }
+    if(typeof offset === 'object') return offset
+    return {x: 6, y: 6 };
   }
 
   /**
