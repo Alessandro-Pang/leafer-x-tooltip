@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-24 18:44:46
+ * @LastEditTime: 2025-04-25 18:17:35
  * @Description: Tooltip 提示插件
  * @FilePath: /leafer-x-tooltip/src/TooltipPlugin.ts
  */
@@ -122,8 +122,14 @@ export class TooltipPlugin {
     const eventIds = []
     
     // 挂载鼠标事件，用于悬浮、点击触发tooltip
-    const event = this.config.triggerType === 'hover' ? PointerEvent.MOVE : PointerEvent.CLICK
-    const eventFunc = this.config.triggerType === 'hover' ? this.leaferPointMove : this.leaferPointClick
+    let event = PointerEvent.MOVE
+    let eventFunc = this.leaferPointMove
+
+    if(this.config.triggerType === 'click'){
+      event = PointerEvent.CLICK
+      eventFunc = this.leaferPointClick
+    }
+    
     const eventId = this.app.on_(event,eventFunc, this)
     eventIds.push(eventId)
     
@@ -169,9 +175,9 @@ export class TooltipPlugin {
    */
   private leaferPointMove(event: PointerEvent) {
     const node = event.target
-    if(this.shouldShowTooltip(node, event)) {
-      this.activeNode = node
-    }
+    if(this.activeNode === node) return
+    if(!this.shouldShowTooltip(node, event)) return
+    this.activeNode = node
   }
 
   /**
@@ -232,10 +238,16 @@ export class TooltipPlugin {
     }
     // 初始化创建一个样式
     this.styleSheetElement = createCssClass(`.${PLUGIN_NAME}`, {
-      padding: '8px 10px',
-      backgroundColor: '#fff',
-      borderRadius: '2px',
-      boxShadow: '0 0 4px #e2e2e2'
+      border: 'none',
+      borderRadius: '6px',
+      padding: '10px 14px',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      color: '#333',
+      fontSize: '13px',
+      fontWeight: '400',
+      boxShadow: '0 3px 14px rgba(0, 0, 0, 0.15)',
+      backdropFilter: 'blur(8px)',
+      transition: 'opacity,top, left 0.2s ease-in-out',
     })
   }
 
@@ -385,7 +397,7 @@ export class TooltipPlugin {
       display: 'block',
       position: 'absolute',
       left: `${x}px`,
-      top: `${y}px`
+      top: `${y}px`,
     })
   }
 
@@ -417,7 +429,6 @@ export class TooltipPlugin {
    * 创建样式规则
    * @param selector
    * @param useRules
-   * @deprecated 该方法计划在下个版本中废弃，用户自行创建样式规则
    */
   public createStyleRule(selector: string, useRules: string | Record<string, string>) {
     createCssClass(`${selector}[${ATTRS_NAME}=${this.domId}]`, useRules, this.styleSheetElement)
@@ -426,7 +437,6 @@ export class TooltipPlugin {
   /**
    * 移除样式规则
    * @param selector
-   * @deprecated 该方法计划在下个版本中废弃
    */
   public removeStyleRule(selector: string) {
     const styleSheet = this.styleSheetElement.sheet
@@ -439,7 +449,6 @@ export class TooltipPlugin {
   /**
    * 查找样式规则索引
    * @param selector
-   * @deprecated 该方法计划在下个版本中废弃
    */
   public findStyleRuleIndex(selector: string): number {
     const styleSheet = this.styleSheetElement.sheet

@@ -2,7 +2,10 @@
     "compilerOptions": {
         "target": "ES2015",
         "module": "ES2015",
-        "lib": ["ESNext","DOM"],
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
         "experimentalDecorators": true,
         "allowJs": false,
         "sourceMap": true,
@@ -17,13 +20,12 @@
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "baseUrl": "./",
-        "outDir": "dist",
+        "outDir": "./dist"
     },
     "exclude": [
         "node_modules",
         "**/node_modules/**",
         "dist",
-        "dev",
         "**/dist/**",
         "**/lib/**",
         "**/scripts/**",

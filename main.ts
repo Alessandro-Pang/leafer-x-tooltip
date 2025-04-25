@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-24 20:05:19
+ * @LastEditTime: 2025-04-25 19:12:48
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
@@ -78,19 +78,6 @@ initBody()
 // 添加全局样式
 const globalStyle = document.createElement('style')
 globalStyle.innerText = `
-  .leafer-x-tooltip {
-    border: none;
-    border-radius: 6px;
-    padding: 10px 14px;
-    background-color: rgba(255, 255, 255, 0.95);
-    color: #333;
-    font-size: 13px;
-    font-weight: 400;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(8px);
-    transition: opacity 0.2s;
-  }
-  
   .custom-tooltip {
     border: none;
     border-radius: 8px;
@@ -197,7 +184,6 @@ function createWrapper(title: string) {
 function createPluginDemo(title: string, config: Omit<UserConfig, 'getContent'>) {
   const view = createWrapper(title)
   const app = new App({ view, tree: {type:'draw'} })
-  // const leafer = new Leafer({ view, type: 'draw' })
 
   const rect = Leafer.one({
     tag: 'Rect',
@@ -209,7 +195,7 @@ function createPluginDemo(title: string, config: Omit<UserConfig, 'getContent'>)
     opacity: 1,
     fill: 'rgba(50, 190, 7, 1)',
     stroke: 'rgba(155, 255, 243, 1)',
-    strokeWidth: 11
+    strokeWidth: 11,
   })
   const ellipse = Leafer.one({
     tag: 'Ellipse',

@@ -1,12 +1,12 @@
-import dts from 'rollup-plugin-dts';
-import livereload from 'rollup-plugin-livereload';
-import serve from 'rollup-plugin-serve';
+import dts from 'rollup-plugin-dts'
+import livereload from 'rollup-plugin-livereload'
+import serve from 'rollup-plugin-serve'
 
-import commonjs from '@rollup/plugin-commonjs';
-import html from '@rollup/plugin-html';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import terser from '@rollup/plugin-terser';
-import typescript from '@rollup/plugin-typescript';
+import commonjs from '@rollup/plugin-commonjs'
+import html from '@rollup/plugin-html'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import terser from '@rollup/plugin-terser'
+import typescript from '@rollup/plugin-typescript'
 
 // config
 
@@ -19,20 +19,19 @@ const port = 12121 // visit http://localhost:12121
 
 // ------
 
-
 const isDev = process.env.NODE_ENV === 'development'
 const isPublish = process.env.NODE_ENV === 'publish'
 const platformName = process.env.PLATFORM
 
 const platform = {
-    'all': {
+    all: {
         name: 'index', // output index.esm.js index.js
         path: basePath,
         withFormat: supportPlatforms.includes('node') ? ['cjs'] : false,
         withGlobal: globalName,
         withMin: 'min',
-        external
-    }
+        external,
+    },
 }
 
 const plugins = [
@@ -41,73 +40,82 @@ const plugins = [
         preferBuiltins: false,
     }),
     typescript({
-        tsconfig: './tsconfig.json'
+        tsconfig: './tsconfig.json',
     }),
-    commonjs()
+    commonjs(),
 ]
-
 
 let config
 
 if (isDev) {
-
     config = {
         input: 'main.ts',
         output: {
-            file: 'dev/bundle.js',
-            format: 'esm'
+            file: 'dist/bundle.js',
+            format: 'esm',
         },
         watch: { exclude: ['node_modules/**'] },
         plugins: [
             ...plugins,
             html({
-                title: "Leafer Plugin",
-                meta: [{ charset: 'utf-8' }, { name: 'viewport', content: 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no' }]
+                title: 'Leafer Plugin',
+                meta: [
+                    { charset: 'utf-8' },
+                    {
+                        name: 'viewport',
+                        content:
+                            'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no',
+                    },
+                ],
             }),
-            livereload({ watch: 'dev/' }),
-            serve({ contentBase: ['dev/'], port })
-        ]
+            livereload({ watch: 'dist/' }),
+            serve({ contentBase: ['dist/'], port }),
+        ],
     }
-
 } else if (isPublish) {
     config = {
         input: 'main.ts',
         output: {
-            file: 'dev/bundle.js',
-            format: 'esm'
+            file: 'dist/bundle.js',
+            format: 'esm',
         },
         plugins: [
             ...plugins,
             html({
-                title: "Leafer Plugin",
-                meta: [{ charset: 'utf-8' }, { name: 'viewport', content: 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no' }]
+                title: 'Leafer Plugin',
+                meta: [
+                    { charset: 'utf-8' },
+                    {
+                        name: 'viewport',
+                        content:
+                            'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no',
+                    },
+                ],
             }),
-        ]
+        ],
     }
 } else {
-
     // build
-    config = [{ // types/index.d.ts
-        input: basePath + '/src/index.ts',
-        output: {
-            file: basePath + '/types/index.d.ts'
+    config = [
+        {
+            // types/index.d.ts
+            input: basePath + '/src/index.ts',
+            output: {
+                file: basePath + '/types/index.d.ts',
+            },
+            plugins: [dts()],
         },
-        plugins: [dts()]
-    }]
+    ]
 
     let p = platform[platformName]
     if (!(p instanceof Array)) p = [p]
 
     const list = []
 
-    p.forEach(c => {
-
+    p.forEach((c) => {
         if (c.input && c.output) {
-
             list.push(c)
-
         } else {
-
             const input = c.input || c.path + '/src/index.ts'
             const fileBase = c.path + '/dist/' + (c.name || platformName)
 
@@ -116,34 +124,59 @@ if (isDev) {
             let external = c.external
 
             list.push({ external, input, output: fileBase + '.esm.js' })
-            if (c.withMin) list.push({ min, external, input, output: fileBase + '.esm.' + min + '.js' })
+            if (c.withMin)
+                list.push({
+                    min,
+                    external,
+                    input,
+                    output: fileBase + '.esm.' + min + '.js',
+                })
 
             if (c.withFormat) {
-                c.withFormat.forEach(format => {
+                c.withFormat.forEach((format) => {
                     const cjs = format === 'cjs'
-                    list.push({ external, input, output: fileBase + (cjs ? '.cjs' : '.' + format + '.js'), format })
-                    if (c.withMin) list.push({ min, external, input, output: fileBase + (cjs ? '.' + min + '.cjs' : '.' + format + '.' + min + '.js'), format })
+                    list.push({
+                        external,
+                        input,
+                        output: fileBase + (cjs ? '.cjs' : '.' + format + '.js'),
+                        format,
+                    })
+                    if (c.withMin)
+                        list.push({
+                            min,
+                            external,
+                            input,
+                            output:
+                                fileBase +
+                                (cjs ? '.' + min + '.cjs' : '.' + format + '.' + min + '.js'),
+                            format,
+                        })
                 })
             }
 
             if (global) {
                 if (c.fullGlobal) external = null
                 list.push({ global, external, input, output: fileBase + '.js' })
-                if (c.withMin) list.push({ global, min, external, input, output: fileBase + '.' + min + '.js' })
+                if (c.withMin)
+                    list.push({
+                        global,
+                        min,
+                        external,
+                        input,
+                        output: fileBase + '.' + min + '.js',
+                    })
             }
-
         }
     })
 
-    list.forEach(c => {
+    list.forEach((c) => {
         const item = {
             external: c.external ? Object.keys(c.external) : null,
             input: c.input,
-            plugins: [...plugins]
+            plugins: [...plugins],
         }
 
         if (c.global) {
-
             item.output = {
                 file: c.output,
                 name: c.global,
@@ -151,22 +184,17 @@ if (isDev) {
             }
 
             if (c.external) item.output.globals = c.external
-
         } else {
-
             item.output = {
                 file: c.output,
-                format: c.format || 'esm'
+                format: c.format || 'esm',
             }
-
         }
 
         if (c.min) item.plugins.push(terser({ format: { comments: false } }))
 
         config.push(item)
-
     })
-
 }
 
 export default config

@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-26 20:37:52
  * @LastEditors: zi.yang
- * @LastEditTime: 2024-02-27 00:08:34
+ * @LastEditTime: 2025-04-25 11:55:45
  * @Description: utils
  * @FilePath: /leafer-x-tooltip/src/utils.ts
  */
@@ -93,7 +93,7 @@ export function camelCaseToDash(str: string) {
  */
 export function createCssClass(selector: string, useRules: string | Record<string, string>, userStyleElement?: HTMLStyleElement) {
   let styleElement = userStyleElement
-  if (!styleElement && !(userStyleElement instanceof HTMLStyleElement)) {
+  if (!styleElement || !(userStyleElement instanceof HTMLStyleElement)) {
     styleElement = document.createElement('style')
     // 给标签加一个标识，方便后续查找和删除
     styleElement.setAttribute(PLUGIN_NAME, '')
