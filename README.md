@@ -8,13 +8,15 @@
 -->
 # leafer-x-tooltip
 
+[English](./README.en.md) | 简体中文
+
 [![npm version](https://img.shields.io/npm/v/leafer-x-tooltip.svg)](https://www.npmjs.com/package/leafer-x-tooltip)
 [![license](https://img.shields.io/npm/l/leafer-x-tooltip.svg)](https://github.com/Alessandro-Pang/leafer-x-tooltip/blob/main/LICENSE)
 
 Tooltip 插件主要用于 Leafer 元素/节点上展示一些自定义信息。当鼠标悬浮或点击元素时，会显示一个弹框展示节点的详细信息。
 
 > **注意**：该插件依赖 leafer v1.0.0.rc.17 **及以上**版本, 目前没有对 rc.17 以下版本做兼容测试处理  
-> 如果你的项目使用的 leafer v1.0.0.rc.1 **以下**版本，请使用 [leafer-tooltip-plugin](https://arc.net/l/quote/fcppgncg) 插件
+> 如果你的项目使用的 leafer v1.0.0.rc.1 **以下**版本，请使用 [leafer-tooltip-plugin](https://github.com/Alessandro-Pang/leafer-tooltip-plugin) 插件
 
 ## 在线演示
 
