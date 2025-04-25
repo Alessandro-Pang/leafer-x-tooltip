@@ -33,7 +33,7 @@
     "publish-demo": "cross-env NODE_ENV=publish rollup -c",
     "build": "cross-env PLATFORM=all rollup -c",
     "test": "vitest",
-    "publish": "npm run build && npm version patch && npm publish"
+    "pub": "npm run build && npm version patch && npm publish"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.3",
