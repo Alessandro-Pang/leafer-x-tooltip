@@ -2,7 +2,7 @@
  * @Author: zi.yang
  * @Date: 2024-02-01 14:42:21
  * @LastEditors: zi.yang
- * @LastEditTime: 2025-04-25 19:12:48
+ * @LastEditTime: 2025-04-25 19:15:45
  * @Description:
  * @FilePath: /leafer-x-tooltip/main.ts
  */
@@ -168,7 +168,6 @@ function createWrapper(title: string) {
   addStyle(chartBox, {
     width: '100%',
     height: 'calc(100% - 60px)',
-    padding: '10px',
     boxSizing: 'border-box',
     flex: '1',
     display: 'flex',
